@@ -10,15 +10,17 @@ import CoreLocation
 
 @Observable
 class MapViewModel: NSObject, CLLocationManagerDelegate {
-    private var locationManager = CLLocationManager()
+    private var locationManager: CLLocationManager
     
     var currentLocation: CLLocation?
+    var markedLocations: [CLLocation] = []
     
-    override init() {
+    init(withLocationManager locationManager: CLLocationManager = .init()) {
+        self.locationManager = locationManager
         super.init()
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startMonitoringSignificantLocationChanges()
+        self.locationManager.delegate = self
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.startMonitoringSignificantLocationChanges()
         self.currentLocation = locationManager.location
     }
     
@@ -30,6 +32,11 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         if let location = locations.first, location.timestamp > self.currentLocation?.timestamp ?? Date.distantPast {
             self.currentLocation = location
         }
+    }
+    
+    func markCurrentLocation() {
+        guard let location = self.locationManager.location else { return }
+        self.markedLocations.append(location)
     }
     
 }

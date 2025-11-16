@@ -27,6 +27,10 @@ struct ContentView: View {
         ZStack {
             Map(position: $cameraPosition) {
                 UserAnnotation()
+                
+                ForEach(self.viewModel.markedLocations, id: \.self) { location in
+                    Marker("", coordinate: location.coordinate)
+                }
             }
             .onAppear {
                 self.updateCameraPositionToUserLocation()
@@ -42,7 +46,7 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    print("Floating button tapped")
+                    self.viewModel.markCurrentLocation()
                 }) {
                     Image(systemName: Constants.fabIconName)
                         .resizable()
