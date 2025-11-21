@@ -13,7 +13,6 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager
     
     var currentLocation: CLLocation?
-    var markedLocations: [CLLocation] = []
     
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager
@@ -33,10 +32,4 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
             self.currentLocation = location
         }
     }
-    
-    func markCurrentLocation() {
-        guard let location = self.locationManager.location else { return }
-        self.markedLocations.append(location)
-    }
-    
 }

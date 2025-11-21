@@ -14,6 +14,8 @@ struct ContentView: View {
         .init(center: .empowerStadium, span: Constants.defaultSpan)
     )
     
+    @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: Constants.defaultSpan)
+    
     @State private var viewModel = MapViewModel()
     
     private struct Constants {
@@ -21,42 +23,58 @@ struct ContentView: View {
                                                          longitudeDelta: 0.01)
         static let fabIconName = "plus.circle.fill"
         static let fabEdgeSize: CGFloat = 60
+        
+        static let searchCancelIcon = "xmark.circle.fill"
     }
     
     var body: some View {
         ZStack {
             Map(position: $cameraPosition) {
                 UserAnnotation()
-                
-                ForEach(self.viewModel.markedLocations, id: \.self) { location in
-                    Marker("", coordinate: location.coordinate)
-                }
             }
             .onAppear {
                 self.updateCameraPositionToUserLocation()
             }
-            
-            self.fab
-        }
-    }
-    
-    private var fab: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    self.viewModel.markCurrentLocation()
-                }) {
-                    Image(systemName: Constants.fabIconName)
-                        .resizable()
-                        .foregroundStyle(Color.blue)
-                        .frame(width: Constants.fabEdgeSize, height: Constants.fabEdgeSize)
-                }
-                .padding()
+            .onMapCameraChange(frequency: .onEnd) { context in
+                self.currentRegion = context.region
+            }
+            .safeAreaInset(edge: .bottom) {
+                self.searchBox
             }
         }
     }
+    
+    // MARK: Search Box
+    
+    @State private var searchText = ""
+    @FocusState private var searchFieldFocus: Bool
+    
+    private var searchBox: some View {
+        HStack {
+            TextField("Search...", text: self.$searchText)
+                .textFieldStyle(.roundedBorder)
+                .focused(self.$searchFieldFocus)
+                .overlay(alignment: .trailing) {
+                    if self.searchFieldFocus {
+                        Button {
+                            self.searchText = ""
+                            self.searchFieldFocus = false
+                        } label: {
+                            Image(systemName: Constants.searchCancelIcon)
+                        }
+                        .offset(x: -5)
+                    }
+                }
+                .onSubmit {
+                    // TODO: Show search results on map
+                    print("Search Text: \(self.searchText) | Current Region: \(self.currentRegion)")
+                }
+            
+        }
+        .padding()
+    }
+    
+    // MARK: Helpers
     
     private func updateCameraPositionToUserLocation() {
         if let userLocation = self.viewModel.currentLocation?.coordinate {
@@ -65,7 +83,6 @@ struct ContentView: View {
             )
         }
     }
-    
 }
 
 #Preview {
