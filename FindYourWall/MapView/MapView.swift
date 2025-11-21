@@ -31,6 +31,10 @@ struct ContentView: View {
         ZStack {
             Map(position: $cameraPosition) {
                 UserAnnotation()
+                
+                ForEach(self.viewModel.mapSearchResults, id: \.self) { mapItem in
+                    Marker("", coordinate: mapItem.location.coordinate)
+                }
             }
             .onAppear {
                 self.updateCameraPositionToUserLocation()
@@ -66,8 +70,9 @@ struct ContentView: View {
                     }
                 }
                 .onSubmit {
-                    // TODO: Show search results on map
-                    print("Search Text: \(self.searchText) | Current Region: \(self.currentRegion)")
+                    Task {
+                        await self.viewModel.search(self.currentRegion, searchText: self.searchText)
+                    }
                 }
             
         }

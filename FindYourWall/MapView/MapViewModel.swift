@@ -7,12 +7,14 @@
 
 import Foundation
 import CoreLocation
+import MapKit
 
 @Observable
 class MapViewModel: NSObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager
     
     var currentLocation: CLLocation?
+    var mapSearchResults: [MKMapItem] = []
     
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager
@@ -31,5 +33,17 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         if let location = locations.first, location.timestamp > self.currentLocation?.timestamp ?? Date.distantPast {
             self.currentLocation = location
         }
+    }
+    
+    @MainActor
+    func search(_ region: MKCoordinateRegion, searchText: String) async {
+        self.mapSearchResults = []
+        
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = searchText
+        request.region = region
+        
+        let response = try? await MKLocalSearch(request: request).start()
+        self.mapSearchResults = response?.mapItems ?? []
     }
 }
