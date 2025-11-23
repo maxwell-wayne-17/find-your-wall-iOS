@@ -5,8 +5,8 @@
 //  Created by Max Wayne on 11/15/25.
 //
 
-import Testing
 @testable import FindYourWall
+import Testing
 
 struct FindYourWallTests {
 
