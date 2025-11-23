@@ -9,35 +9,19 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
-   
-    @State private var cameraPosition: MapCameraPosition = .region(
-        .init(center: .empowerStadium, span: Constants.defaultSpan)
-    )
     
-    @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: Constants.defaultSpan)
+    @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
     
     @State private var viewModel = MapViewModel()
     
-    private struct Constants {
-        static let defaultSpan: MKCoordinateSpan = .init(latitudeDelta: 0.01,
-                                                         longitudeDelta: 0.01)
-        static let fabIconName = "plus.circle.fill"
-        static let fabEdgeSize: CGFloat = 60
-        
-        static let searchCancelIcon = "xmark.circle.fill"
-    }
-    
     var body: some View {
         ZStack {
-            Map(position: $cameraPosition) {
+            Map(position: self.$viewModel.cameraPosition) {
                 UserAnnotation()
                 
                 ForEach(self.viewModel.mapSearchResults, id: \.self) { mapItem in
                     Marker("", coordinate: mapItem.location.coordinate)
                 }
-            }
-            .onAppear {
-                self.updateCameraPositionToUserLocation()
             }
             .onMapCameraChange(frequency: .onEnd) { context in
                 self.currentRegion = context.region
@@ -48,7 +32,7 @@ struct ContentView: View {
         }
     }
     
-    // MARK: Search Box
+    // MARK: - Search Box
     
     @State private var searchText = ""
     @FocusState private var searchFieldFocus: Bool
@@ -64,7 +48,7 @@ struct ContentView: View {
                             self.searchText = ""
                             self.searchFieldFocus = false
                         } label: {
-                            Image(systemName: Constants.searchCancelIcon)
+                            Image(systemName: MapViewModel.Constants.searchCancelIcon)
                         }
                         .offset(x: -5)
                     }
@@ -78,17 +62,9 @@ struct ContentView: View {
         }
         .padding()
     }
-    
-    // MARK: Helpers
-    
-    private func updateCameraPositionToUserLocation() {
-        if let userLocation = self.viewModel.currentLocation?.coordinate {
-            self.cameraPosition = .region(
-                .init(center: userLocation, span: Constants.defaultSpan)
-            )
-        }
-    }
 }
+
+// MARK: - Preview
 
 #Preview {
     ContentView()

@@ -8,13 +8,24 @@
 import Foundation
 import CoreLocation
 import MapKit
+import _MapKit_SwiftUI
 
 @Observable
 class MapViewModel: NSObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager
     
-    var currentLocation: CLLocation?
+    var cameraPosition: MapCameraPosition = .region(.init(center: .empowerStadium, span: Constants.defaultSpan))
+       
     var mapSearchResults: [MKMapItem] = []
+    
+    struct Constants {
+        static let defaultSpan: MKCoordinateSpan = .init(latitudeDelta: 0.01,
+                                                         longitudeDelta: 0.01)
+        static let fabIconName = "plus.circle.fill"
+        static let fabEdgeSize: CGFloat = 60
+        
+        static let searchCancelIcon = "xmark.circle.fill"
+    }
     
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager
@@ -22,7 +33,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.startMonitoringSignificantLocationChanges()
-        self.currentLocation = locationManager.location
+        self.setCameraPosition(for: locationManager.location)
     }
     
     deinit {
@@ -30,9 +41,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.first, location.timestamp > self.currentLocation?.timestamp ?? Date.distantPast {
-            self.currentLocation = location
-        }
+        self.setCameraPosition(for: locations.first)
     }
     
     @MainActor
@@ -45,5 +54,12 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         
         let response = try? await MKLocalSearch(request: request).start()
         self.mapSearchResults = response?.mapItems ?? []
+    }
+    
+    private func setCameraPosition(for location: CLLocation?) {
+        guard let userLocation = location?.coordinate else { return }
+        self.cameraPosition = .region(
+            .init(center: userLocation, span: Constants.defaultSpan)
+        )
     }
 }
