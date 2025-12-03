@@ -11,20 +11,25 @@ import MapKit
 struct ContentView: View {
     
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
-    
+    @State private var selectedTag: Int?
     @State private var viewModel = MapViewModel()
     
     var body: some View {
         ZStack {
-            Map(position: self.$viewModel.cameraPosition) {
+            Map(position: self.$viewModel.cameraPosition, selection: self.$selectedTag) {
                 UserAnnotation()
                 
-                ForEach(self.viewModel.mapSearchResults, id: \.self) { mapItem in
+                ForEach(self.viewModel.mapSearchResults.indices, id: \.self) { idx in
+                    let mapItem = self.viewModel.mapSearchResults[idx]
                     Marker("", coordinate: mapItem.location.coordinate)
+                        .tag(idx)
                 }
             }
             .onMapCameraChange(frequency: .onEnd) { context in
                 self.currentRegion = context.region
+            }
+            .onChange(of: self.selectedTag) {
+                print("Tag tapped: \(String(describing: self.selectedTag))")
             }
             .safeAreaInset(edge: .bottom) {
                 self.searchBox
@@ -56,6 +61,7 @@ struct ContentView: View {
                 .onSubmit {
                     Task {
                         await self.viewModel.search(self.currentRegion, searchText: self.searchText)
+                        self.selectedTag = nil
                     }
                 }
             
