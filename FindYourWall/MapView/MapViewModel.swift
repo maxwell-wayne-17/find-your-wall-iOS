@@ -18,15 +18,6 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
        
     var mapSearchResults: [MKMapItem] = []
     
-    struct Constants {
-        static let defaultSpan: MKCoordinateSpan = .init(latitudeDelta: 0.01,
-                                                         longitudeDelta: 0.01)
-        static let fabIconName = "plus.circle.fill"
-        static let fabEdgeSize: CGFloat = 60
-        
-        static let searchCancelIcon = "xmark.circle.fill"
-    }
-    
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager
         super.init()
@@ -56,10 +47,22 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         self.mapSearchResults = response?.mapItems ?? []
     }
     
+    func getMapItem(at index: Int?) -> MKMapItem? {
+        guard let index, index < self.mapSearchResults.count else { return nil }
+        return self.mapSearchResults[index]
+    }
+    
     private func setCameraPosition(for location: CLLocation?) {
         guard let userLocation = location?.coordinate else { return }
         self.cameraPosition = .region(
             .init(center: userLocation, span: Constants.defaultSpan)
         )
+    }
+    
+    // MARK: - Constants
+    
+    struct Constants {
+        static let defaultSpan: MKCoordinateSpan = .init(latitudeDelta: 0.01,
+                                                         longitudeDelta: 0.01)
     }
 }
