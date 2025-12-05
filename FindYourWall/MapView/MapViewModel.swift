@@ -33,10 +33,6 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         locationManager.stopMonitoringSignificantLocationChanges()
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        self.setCameraPosition(for: locations.first)
-    }
-    
     @MainActor
     func search(_ region: MKCoordinateRegion, searchText: String) async {
         self.mapSearchResults = []
@@ -67,6 +63,12 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         self.cameraPosition = .region(
             .init(center: userLocation, span: Constants.defaultSpan)
         )
+    }
+    
+    // MARK: - CLLocationManagerDelegate
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        self.setCameraPosition(for: locations.first)
     }
     
     // MARK: - Constants
