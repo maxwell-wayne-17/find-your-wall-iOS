@@ -16,7 +16,9 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     
     var cameraPosition: MapCameraPosition = .region(.init(center: .empowerStadium, span: Constants.defaultSpan))
        
-    var mapSearchResults: [MKMapItem] = []
+    var mapSearchResults: [MKMapItem] = []    
+    var selectedTag: Int?
+    var userPlacedLocation: MKMapItem?
     
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager
@@ -47,9 +49,17 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         self.mapSearchResults = response?.mapItems ?? []
     }
     
-    func getMapItem(at index: Int?) -> MKMapItem? {
-        guard let index, index < self.mapSearchResults.count else { return nil }
-        return self.mapSearchResults[index]
+    func setUserPlacedLocation(at coordinate: CLLocationCoordinate2D) {
+        self.userPlacedLocation = MKMapItem(location: .init(latitude: coordinate.latitude,
+                                                            longitude: coordinate.longitude),
+                                            address: nil)
+    }
+    
+    func getSelectedLocation() -> MKMapItem? {
+        if self.selectedTag == Constants.userPlacedLocationTag { return self.userPlacedLocation }
+        
+        guard let tag = self.selectedTag, tag >= 0, tag < self.mapSearchResults.count else { return nil }
+        return self.mapSearchResults[tag]
     }
     
     private func setCameraPosition(for location: CLLocation?) {
@@ -64,5 +74,6 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     struct Constants {
         static let defaultSpan: MKCoordinateSpan = .init(latitudeDelta: 0.01,
                                                          longitudeDelta: 0.01)
+        static let userPlacedLocationTag = -1
     }
 }

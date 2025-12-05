@@ -11,14 +11,18 @@ import MapKit
 struct MapView: View {
     
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
-    @State private var selectedTag: Int?
     @State private var showMarkerSheet = false
     @Bindable private var viewModel = MapViewModel()
     
     var body: some View {
-        ZStack {
-            Map(position: self.$viewModel.cameraPosition, selection: self.$selectedTag) {
+        MapReader { proxy in
+            Map(position: self.$viewModel.cameraPosition, selection: self.$viewModel.selectedTag) {
                 UserAnnotation()
+                
+                if let userPlacedCoordinate = self.viewModel.userPlacedLocation?.location.coordinate {
+                    Marker("", coordinate: userPlacedCoordinate)
+                        .tag(MapViewModel.Constants.userPlacedLocationTag)
+                }
                 
                 ForEach(self.viewModel.mapSearchResults.indices, id: \.self) { idx in
                     let mapItem = self.viewModel.mapSearchResults[idx]
@@ -29,18 +33,22 @@ struct MapView: View {
             .onMapCameraChange(frequency: .onEnd) { context in
                 self.currentRegion = context.region
             }
-            .onChange(of: self.selectedTag) {
-                if self.selectedTag != nil {
+            .onChange(of: self.viewModel.selectedTag) {
+                if self.viewModel.selectedTag != nil {
                     self.showMarkerSheet = true
+                }
+            }
+            .onTapGesture { position in
+                // FIXME: Ideally the sheet pops up automatically, but when setting the selected tag immediately, the view model gets asked for the selected tag twice in quick succession and the second time sets the tag to nil.  Additionally, when the user actually taps the pin, a new one is placed slightly off of the one the user tried to tap.  This can be fixed by having a "pin placing" state, though that isn't ideal user experience.
+                if let coordinate = proxy.convert(position, from: .local) {
+                    self.viewModel.setUserPlacedLocation(at: coordinate)
                 }
             }
             .sheet(isPresented: self.$showMarkerSheet,
                    onDismiss: {
-                withAnimation {
-                    self.selectedTag = nil
-                }
+                withAnimation { self.viewModel.selectedTag = nil }
             }) {
-                if let mapItem = self.viewModel.getMapItem(at: self.selectedTag)  {
+                if let mapItem = self.viewModel.getSelectedLocation()  {
                     MarkerSheetView(mapItem: mapItem)
                 } else {
                     Text("Error: Invalid location selected")
@@ -77,7 +85,7 @@ struct MapView: View {
                 .onSubmit {
                     Task {
                         await self.viewModel.search(self.currentRegion, searchText: self.searchText)
-                        self.selectedTag = nil
+                        self.viewModel.selectedTag = nil
                     }
                 }
             

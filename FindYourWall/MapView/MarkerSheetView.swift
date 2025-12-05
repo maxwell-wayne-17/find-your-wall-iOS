@@ -22,7 +22,8 @@ struct MarkerSheetView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.top])
             
-            Text(self.mapItem.addressRepresentations?.fullAddress(includingRegion: false, singleLine: true) ?? "")
+            Text(self.mapItem.addressRepresentations?.fullAddress(includingRegion: false, singleLine: true) ??
+                 "\(self.mapItem.location.coordinate.description ?? "")")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -58,4 +59,17 @@ struct MarkerSheetView: View {
 
 #Preview {
     MarkerSheetView(mapItem: .init())
+}
+
+extension CLLocationCoordinate2D {
+    var description: String? {
+        let formatter = NumberFormatter()
+            formatter.maximumFractionDigits = 4
+            formatter.numberStyle = .decimal
+        
+        guard let latitudeString = formatter.string(from: self.latitude as NSNumber),
+              let longitudeString = formatter.string(from: self.longitude as NSNumber) else { return nil }
+        
+        return "\(latitudeString)°, \(longitudeString)°"
+    }
 }
