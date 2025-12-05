@@ -19,6 +19,8 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     var mapSearchResults: [MKMapItem] = []    
     var selectedTag: Int?
     var userPlacedLocation: MKMapItem?
+    var userIsPlacingPin = false
+    var showMarkerSheet = false
     
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager
@@ -56,6 +58,16 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         
         guard let tag = self.selectedTag, tag >= 0, tag < self.mapSearchResults.count else { return nil }
         return self.mapSearchResults[tag]
+    }
+    
+    func selectedTagDidChange() {
+        if self.userIsPlacingPin == false &&
+            self.selectedTag != nil {
+            self.showMarkerSheet = true
+        } else {
+            self.selectedTag = nil
+            self.showMarkerSheet = false
+        }
     }
     
     private func setCameraPosition(for location: CLLocation?) {

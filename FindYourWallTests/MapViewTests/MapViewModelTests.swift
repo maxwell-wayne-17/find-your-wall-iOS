@@ -65,5 +65,22 @@ struct MapViewModelTests {
         sut.selectedTag = MapViewModel.Constants.userPlacedLocationTag
         #expect(sut.getSelectedLocation() == nil)
     }
+    
+    @Test("Test the value of showMarkerSheet when selectedTagDidChange is called.",
+          arguments: [(true, 1), (false, 1), (true, nil), (false, nil)])
+    func testShowMarkerSheetWhenSelectedTagDidChange(userIsPlacingPin: Bool, tag: Int?) {
+        // Given
+        let sut = MapViewModel()
+        sut.userIsPlacingPin = userIsPlacingPin
+        sut.selectedTag = tag
+    
+        // When
+        sut.selectedTagDidChange()
+        
+        // Then
+        let happyCase = !userIsPlacingPin && tag != nil
+        #expect(sut.showMarkerSheet == happyCase)
+        #expect((sut.selectedTag != nil) == happyCase)
+    }
 
 }

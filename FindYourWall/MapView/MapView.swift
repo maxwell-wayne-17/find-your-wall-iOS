@@ -11,52 +11,71 @@ import MapKit
 struct MapView: View {
     
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
-    @State private var showMarkerSheet = false
     @Bindable private var viewModel = MapViewModel()
     
     var body: some View {
-        MapReader { proxy in
-            Map(position: self.$viewModel.cameraPosition, selection: self.$viewModel.selectedTag) {
-                UserAnnotation()
+        ZStack {
+            MapReader { proxy in
+                Map(position: self.$viewModel.cameraPosition, selection: self.$viewModel.selectedTag) {
+                    UserAnnotation()
+                    
+                    if let userPlacedCoordinate = self.viewModel.userPlacedLocation?.location.coordinate {
+                        Marker("", coordinate: userPlacedCoordinate)
+                            .tag(MapViewModel.Constants.userPlacedLocationTag)
+                    }
+                    
+                    ForEach(self.viewModel.mapSearchResults.indices, id: \.self) { idx in
+                        let mapItem = self.viewModel.mapSearchResults[idx]
+                        Marker("", coordinate: mapItem.location.coordinate)
+                            .tag(idx)
+                    }
+                }
+                .onMapCameraChange(frequency: .onEnd) { context in
+                    self.currentRegion = context.region
+                }
+                .onChange(of: self.viewModel.selectedTag) {
+                    self.viewModel.selectedTagDidChange()
+                }
+                .onTapGesture { position in
+                    // Note: Ideally the user can just tap and the marker sheet automatically appears,
+                    // however there was an issue where the selected tag would get set to nil
+                    // and trying to tap on a placed pin would drop another pin.
+                    // Therefore, we create a special "placing pin" state where the user can place a pin
+                    // and cannot open a marker sheet.
+                    if self.viewModel.userIsPlacingPin,
+                       let coordinate = proxy.convert(position, from: .local) {
+                        self.viewModel.setUserPlacedLocation(at: coordinate)
+                    }
+                }
+                .sheet(isPresented: self.$viewModel.showMarkerSheet,
+                       onDismiss: {
+                    withAnimation { self.viewModel.selectedTag = nil }
+                }) {
+                    if let mapItem = self.viewModel.getSelectedLocation()  {
+                        MarkerSheetView(mapItem: mapItem)
+                    } else {
+                        Text("Error: Invalid location selected")
+                            .presentationDetents([Constants.errorSheetDetents])
+                    }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    self.searchBox
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    self.fab
+                        .padding(.bottom, Constants.fabBottomPaddings)
+                }
+            }
+            
+            VStack {
+                Text("Tap to place a pin")
+                    .font(.title2)
+                    .padding()
+                    .glassEffect()
+                    .opacity(self.viewModel.userIsPlacingPin ? 1 : 0)
+                    // Note: Using opacity instead of conditionally displaying this view enables the view to animate when it's no longer displayed
                 
-                if let userPlacedCoordinate = self.viewModel.userPlacedLocation?.location.coordinate {
-                    Marker("", coordinate: userPlacedCoordinate)
-                        .tag(MapViewModel.Constants.userPlacedLocationTag)
-                }
-                
-                ForEach(self.viewModel.mapSearchResults.indices, id: \.self) { idx in
-                    let mapItem = self.viewModel.mapSearchResults[idx]
-                    Marker("", coordinate: mapItem.location.coordinate)
-                        .tag(idx)
-                }
-            }
-            .onMapCameraChange(frequency: .onEnd) { context in
-                self.currentRegion = context.region
-            }
-            .onChange(of: self.viewModel.selectedTag) {
-                if self.viewModel.selectedTag != nil {
-                    self.showMarkerSheet = true
-                }
-            }
-            .onTapGesture { position in
-                // FIXME: Ideally the sheet pops up automatically, but when setting the selected tag immediately, the view model gets asked for the selected tag twice in quick succession and the second time sets the tag to nil.  Additionally, when the user actually taps the pin, a new one is placed slightly off of the one the user tried to tap.  This can be fixed by having a "pin placing" state, though that isn't ideal user experience.
-                if let coordinate = proxy.convert(position, from: .local) {
-                    self.viewModel.setUserPlacedLocation(at: coordinate)
-                }
-            }
-            .sheet(isPresented: self.$showMarkerSheet,
-                   onDismiss: {
-                withAnimation { self.viewModel.selectedTag = nil }
-            }) {
-                if let mapItem = self.viewModel.getSelectedLocation()  {
-                    MarkerSheetView(mapItem: mapItem)
-                } else {
-                    Text("Error: Invalid location selected")
-                        .presentationDetents([Constants.errorSheetDetents])
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                self.searchBox
+                Spacer()
             }
         }
     }
@@ -93,12 +112,34 @@ struct MapView: View {
         .padding()
     }
     
+    // MARK: - Floating Action Button
+    
+    private var fab: some View {
+            Button(action: {
+                withAnimation {
+                    self.viewModel.userIsPlacingPin.toggle()
+                }
+            }) {
+                Image(systemName: Constants.fabIconName)
+                    .resizable()
+                    .foregroundStyle(Color.blue)
+                    .frame(width: Constants.fabEdgeSize, height: Constants.fabEdgeSize)
+                    .rotationEffect(.degrees(self.viewModel.userIsPlacingPin ? 45 : 0))
+            }
+            .padding(.trailing)
+    }
+    
     // MARK: - Constants
     
     private struct Constants {
         static let searchCancelIcon = "xmark.circle.fill"
         static let searchCancelIconOffset: CGFloat = -5
+        
         static let errorSheetDetents: PresentationDetent = .height(50)
+        
+        static let fabIconName = "plus.circle.fill"
+        static let fabEdgeSize: CGFloat = 60
+        static let fabBottomPaddings: CGFloat = 60
     }
 }
 
