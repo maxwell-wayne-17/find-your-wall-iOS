@@ -6,10 +6,11 @@
 //
 
 import MapKit
+import SwiftData
 import SwiftUI
 
 struct MarkerSheetView: View {
-    
+    @Environment(\.modelContext) var modelContext
     let mapItem: MKMapItem
     
     var body: some View {
@@ -31,9 +32,8 @@ struct MarkerSheetView: View {
             
             Spacer()
             
-            // TODO: Eventually we will be able to save locations
             Button(action: {
-                print("Sheet button tapped")
+                self.saveThisMarker()
             }) {
                 Text("Save")
                     .fontWeight(.semibold)
@@ -47,6 +47,13 @@ struct MarkerSheetView: View {
         }
         .padding()
         .presentationDetents([Constants.markerSheetDetentHeight])
+    }
+    
+    private func saveThisMarker() {
+        let spot = LocalWallBallSpot(name: self.mapItem.name ?? "",
+                                     coordinate: .init(from: self.mapItem.location.coordinate),
+                                     address: .init(from: self.mapItem) )
+        modelContext.insert(spot)
     }
     
     // MARK: - Constants

@@ -5,13 +5,15 @@
 //  Created by Max Wayne on 11/15/25.
 //
 
-import SwiftUI
 import MapKit
+import SwiftUI
+import SwiftData
 
 struct MapView: View {
     
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
     @Bindable private var viewModel = MapViewModel()
+    @Query private var localWallBallSpots: [LocalWallBallSpot]
     
     var body: some View {
         ZStack {
@@ -22,6 +24,17 @@ struct MapView: View {
                     if let userPlacedCoordinate = self.viewModel.userPlacedLocation?.location.coordinate {
                         Marker("", coordinate: userPlacedCoordinate)
                             .tag(MapViewModel.Constants.userPlacedLocationTag)
+                    }
+                    
+                    ForEach(self.localWallBallSpots) { spot in
+                        Annotation("", coordinate: spot.coordinate.cLCoordinate, anchor: .bottom) {
+                            Image(systemName: "star.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 20, height: 20)
+                                .padding(7)
+                                .background(.yellow.gradient, in: .circle)
+                        }
                     }
                     
                     ForEach(self.viewModel.mapSearchResults.indices, id: \.self) { idx in
