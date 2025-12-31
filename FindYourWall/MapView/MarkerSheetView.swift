@@ -6,11 +6,10 @@
 //
 
 import MapKit
-import SwiftData
 import SwiftUI
 
 struct MarkerSheetView: View {
-    @Environment(\.modelContext) var modelContext
+    @State private var showSaveForm = false
     let mapItem: MKMapItem
     
     var body: some View {
@@ -25,35 +24,26 @@ struct MarkerSheetView: View {
             
             Text(self.mapItem.addressRepresentations?.fullAddress(includingRegion: false, singleLine: true) ??
                  "\(self.mapItem.location.coordinate.description ?? "")")
-                .font(.body)
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+            .font(.body)
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
             
             Button(action: {
-                self.saveThisMarker()
+                self.showSaveForm = true
             }) {
-                Text("Save")
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-
+                Text("Add")
+                
             }
+            .buttonStyle(.primaryAction)
         }
         .padding()
         .presentationDetents([Constants.markerSheetDetentHeight])
-    }
-    
-    private func saveThisMarker() {
-        let spot = LocalWallBallSpot(name: self.mapItem.name ?? "",
-                                     coordinate: .init(from: self.mapItem.location.coordinate),
-                                     address: .init(from: self.mapItem) )
-        modelContext.insert(spot)
+        .sheet(isPresented: self.$showSaveForm) {
+            SpotSaveFormView(mapItem: self.mapItem)
+        }
     }
     
     // MARK: - Constants

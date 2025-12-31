@@ -27,6 +27,7 @@ struct MapView: View {
                     }
                     
                     ForEach(self.localWallBallSpots) { spot in
+                        // TODO: Need to add an on tap that displays data and enables editing
                         Annotation("", coordinate: spot.coordinate.cLCoordinate, anchor: .bottom) {
                             Image(systemName: "star.fill")
                                 .resizable()
