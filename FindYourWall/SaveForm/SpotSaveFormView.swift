@@ -32,14 +32,14 @@ struct SpotSaveFormView: View {
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         
-        // TODO: This will include the city name. Maybe just make address a single string
-        self.streetAddress = mapItem.address?.shortAddress ?? ""
+        self.streetAddress = mapItem.address?.shortAddress?.split(separator: ",").map(String.init).first ?? ""
         self.city = mapItem.addressRepresentations?.cityName ?? ""
     }
     
     var body: some View {
         
         NavigationView {
+            // TODO: Add keyboard focus
             Form {
                 Section {
                     TextField("Name (Required)", text: self.$name)
@@ -89,4 +89,5 @@ struct SpotSaveFormView: View {
 
 #Preview {
     SpotSaveFormView(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
+        .preferredColorScheme(.dark)
 }
