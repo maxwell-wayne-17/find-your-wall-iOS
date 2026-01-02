@@ -25,6 +25,11 @@ struct SpotSaveFormView: View {
         }
     }
     
+    private enum FocusedField {
+        case name, streetAddress, city, zipCode
+    }
+    @FocusState private var focusedField: FocusedField?
+    
     var isFormValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
@@ -39,33 +44,48 @@ struct SpotSaveFormView: View {
     var body: some View {
         
         NavigationView {
-            // TODO: Add keyboard focus
             Form {
                 Section {
                     TextField("Name (Required)", text: self.$name)
+                        .focused(self.$focusedField, equals: .name)
                 }
-
+                
                 Section(header: Text("Address (Optional)")) {
                     TextField("Street Address", text: self.$streetAddress)
+                        .focused(self.$focusedField, equals: .streetAddress)
                     
                     TextField("City", text: self.$city)
+                        .focused(self.$focusedField, equals: .city)
                     
                     TextField("ZIP Code", text: self.$zipcode)
                         .keyboardType(.numberPad)
+                        .focused(self.$focusedField, equals: .zipCode)
                     
                 }
             }
             .navigationTitle("Wall Ball Spot")
+            .toolbar {
+                ToolbarItem(placement: .keyboard) { Spacer() }
+                ToolbarItem(placement: .keyboard) {
+                    Button {
+                        self.focusedField = nil
+                    } label: {
+                        Image(systemName: Constants.keyboardDismissIcon)
+                    }
+                }
+            }
             .safeAreaInset(edge: .bottom) {
                 
-                // TODO: Add an error view above the button if form is invalid
-                // TODO: The color of this button was invisible when it was disabled
-                Button("Submit") {
-                    if isFormValid {
+                // TODO: The color of this button is glitchy when it is disabled in dark mode
+                Button("Save") {
+                    if self.isFormValid {
                         submit()
                     }
                 }
-                .disabled(!isFormValid)
+                // Ignoring the keyboard overlay wasn't working,
+                // so worked around by making button invisible when text fields are in focus
+                .disabled(!self.isFormValid || self.focusedField != nil)
+                .opacity(self.focusedField != nil ? 0 : 1)
                 .buttonStyle(.primaryAction)
             }
         }
@@ -83,6 +103,10 @@ struct SpotSaveFormView: View {
                                      coordinate: .init(from: self.mapItem.location.coordinate),
                                      address: .init(from: self.mapItem) )
         modelContext.insert(spot)
+    }
+    
+    private struct Constants {
+        static let keyboardDismissIcon = "keyboard.chevron.compact.down"
     }
 }
 
