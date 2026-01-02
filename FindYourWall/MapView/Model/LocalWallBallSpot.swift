@@ -49,6 +49,18 @@ struct Address: Codable, Hashable {
     var regionName: String?
     var region: Locale.Region?
     
+    init(fullAddress: String? = nil,
+         shortAddress: String? = nil,
+         cityName: String? = nil,
+         regionName: String? = nil,
+         region: Locale.Region? = nil) {
+        self.fullAddress = fullAddress
+        self.shortAddress = shortAddress
+        self.cityName = cityName
+        self.regionName = regionName
+        self.region = region
+    }
+    
     init(from mapItem: MKMapItem) {
         self.fullAddress = mapItem.address?.fullAddress
         self.shortAddress = mapItem.address?.shortAddress

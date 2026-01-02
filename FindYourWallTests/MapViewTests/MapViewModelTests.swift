@@ -14,7 +14,7 @@ internal import SwiftUI
 @Suite
 struct MapViewModelTests {
 
-    @Test("Test that the location manager update method sets the camera position.")
+    @Test
     func locationUpdateSetsCameraPosition() throws {
         // Given
         let sut = MapViewModel()
@@ -29,7 +29,7 @@ struct MapViewModelTests {
         #expect(coordinates.longitude == expectedLocation.coordinate.longitude)
     }
     
-    @Test("Test retrieving valid selected locations.")
+    @Test
     func getValidSelectedLocation() {
         // Given
         let sut = MapViewModel()

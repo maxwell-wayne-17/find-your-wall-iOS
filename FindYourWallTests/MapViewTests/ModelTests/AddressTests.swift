@@ -6,7 +6,6 @@
 //
 
 @testable import FindYourWall
-internal import Contacts
 internal import MapKit
 import Testing
 

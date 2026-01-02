@@ -12,33 +12,17 @@ import SwiftData
 struct SpotSaveFormView: View {
     
     @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) private var dismiss
     
-    let mapItem: MKMapItem
-    
-    // TODO: Create a form model
-    @State private var streetAddress: String
-    @State private var city: String
-    @State private var name = ""
-    @State private var zipcode = "" {
-        willSet {
-            self.zipcode = String(newValue.filter { $0.isNumber })
-        }
-    }
+    @Bindable private var viewModel: SpotSaveFormViewModel
     
     private enum FocusedField {
         case name, streetAddress, city, zipCode
     }
     @FocusState private var focusedField: FocusedField?
     
-    var isFormValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty
-    }
-    
-    init(mapItem: MKMapItem) {
-        self.mapItem = mapItem
-        
-        self.streetAddress = mapItem.address?.shortAddress?.split(separator: ",").map(String.init).first ?? ""
-        self.city = mapItem.addressRepresentations?.cityName ?? ""
+    init(viewModel: SpotSaveFormViewModel) {
+        self.viewModel = viewModel
     }
     
     var body: some View {
@@ -46,18 +30,18 @@ struct SpotSaveFormView: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Name (Required)", text: self.$name)
+                    TextField("Name (Required)", text: self.$viewModel.name)
                         .focused(self.$focusedField, equals: .name)
                 }
                 
                 Section(header: Text("Address (Optional)")) {
-                    TextField("Street Address", text: self.$streetAddress)
+                    TextField("Street Address", text: self.$viewModel.streetAddress)
                         .focused(self.$focusedField, equals: .streetAddress)
                     
-                    TextField("City", text: self.$city)
+                    TextField("City", text: self.$viewModel.city)
                         .focused(self.$focusedField, equals: .city)
                     
-                    TextField("ZIP Code", text: self.$zipcode)
+                    TextField("ZIP Code", text: self.$viewModel.zipCode)
                         .keyboardType(.numberPad)
                         .focused(self.$focusedField, equals: .zipCode)
                     
@@ -78,30 +62,24 @@ struct SpotSaveFormView: View {
                 
                 // TODO: The color of this button is glitchy when it is disabled in dark mode
                 Button("Save") {
-                    if self.isFormValid {
-                        submit()
+                    if self.viewModel.isFormValid {
+                        self.saveWallBallSpot()
+                        self.dismiss()
                     }
                 }
                 // Ignoring the keyboard overlay wasn't working,
                 // so worked around by making button invisible when text fields are in focus
-                .disabled(!self.isFormValid || self.focusedField != nil)
+                .disabled(!self.viewModel.isFormValid || self.focusedField != nil)
                 .opacity(self.focusedField != nil ? 0 : 1)
                 .buttonStyle(.primaryAction)
             }
         }
     }
     
-    private func submit() {
-        print("Name:", self.name)
-        print("Street Address:", self.streetAddress.isEmpty ? "(none)" : self.streetAddress)
-        print("City:", self.city.isEmpty ? "(none)" : self.city)
-        print("Zipcode:", self.zipcode.isEmpty ? "(none)" : self.zipcode)
-    }
-    
     private func saveWallBallSpot() {
-        let spot = LocalWallBallSpot(name: self.mapItem.name ?? "",
-                                     coordinate: .init(from: self.mapItem.location.coordinate),
-                                     address: .init(from: self.mapItem) )
+        let spot = LocalWallBallSpot(name: self.viewModel.name,
+                                     coordinate: .init(from: self.viewModel.mapItem.location.coordinate),
+                                     address: self.viewModel.address )
         modelContext.insert(spot)
     }
     
@@ -112,6 +90,7 @@ struct SpotSaveFormView: View {
 
 
 #Preview {
-    SpotSaveFormView(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
+    let viewModel = SpotSaveFormViewModel(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
+    SpotSaveFormView(viewModel: viewModel)
         .preferredColorScheme(.dark)
 }
