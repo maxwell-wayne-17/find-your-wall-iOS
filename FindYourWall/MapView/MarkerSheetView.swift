@@ -9,6 +9,7 @@ import MapKit
 import SwiftUI
 
 struct MarkerSheetView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var showSaveForm = false
     let mapItem: MKMapItem
     
@@ -37,11 +38,11 @@ struct MarkerSheetView: View {
                 Text("Add")
                 
             }
-            .buttonStyle(.primaryAction)
+            .buttonStyle(.primaryAction())
         }
         .padding()
         .presentationDetents([Constants.markerSheetDetentHeight])
-        .sheet(isPresented: self.$showSaveForm) {
+        .sheet(isPresented: self.$showSaveForm, onDismiss: { self.dismiss() }) {
             SpotSaveFormView(viewModel: .init(mapItem: self.mapItem))
         }
     }
@@ -55,7 +56,7 @@ struct MarkerSheetView: View {
 }
 
 #Preview {
-    MarkerSheetView(mapItem: .init())
+    SheetPreviewHost(content: MarkerSheetView(mapItem: .init()))
 }
 
 extension CLLocationCoordinate2D {

@@ -27,7 +27,7 @@ struct MapView: View {
                     }
                     
                     ForEach(self.localWallBallSpots) { spot in
-                        // TODO: Need to add an on tap that displays data and enables editing
+                        // TODO: There is a crash when clicking on the annotations
                         Annotation("", coordinate: spot.coordinate.cLCoordinate, anchor: .bottom) {
                             Image(systemName: "star.fill")
                                 .resizable()
@@ -35,6 +35,12 @@ struct MapView: View {
                                 .frame(width: 20, height: 20)
                                 .padding(7)
                                 .background(.yellow.gradient, in: .circle)
+                                .sheet(isPresented: self.$viewModel.showLocalSpotSheet) {
+                                    LocalWallBallSpotSheetView(spot: spot)
+                                }
+                                .onTapGesture {
+                                    self.viewModel.showLocalSpotSheet = true
+                                }
                         }
                     }
                     

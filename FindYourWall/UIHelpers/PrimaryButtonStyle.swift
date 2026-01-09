@@ -10,13 +10,14 @@ import SwiftUI
 struct PrimaryButtonStyle: ButtonStyle {
     
     @Environment(\.isEnabled) private var isEnabled
+    let backgroundColor: Color
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.blue)
+            .background(self.backgroundColor)
             .foregroundColor(.white)
             .cornerRadius(12)
             .padding()
@@ -25,5 +26,5 @@ struct PrimaryButtonStyle: ButtonStyle {
 }
 
 extension ButtonStyle where Self == PrimaryButtonStyle {
-    static var primaryAction: PrimaryButtonStyle { PrimaryButtonStyle() }
+    static func primaryAction(_ color: Color = .blue) -> PrimaryButtonStyle { PrimaryButtonStyle(backgroundColor: color) }
 }

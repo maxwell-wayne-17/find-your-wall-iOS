@@ -71,7 +71,7 @@ struct SpotSaveFormView: View {
                 // so worked around by making button invisible when text fields are in focus
                 .disabled(!self.viewModel.isFormValid || self.focusedField != nil)
                 .opacity(self.focusedField != nil ? 0 : 1)
-                .buttonStyle(.primaryAction)
+                .buttonStyle(.primaryAction())
             }
         }
     }
@@ -80,7 +80,7 @@ struct SpotSaveFormView: View {
         let spot = LocalWallBallSpot(name: self.viewModel.name,
                                      coordinate: .init(from: self.viewModel.mapItem.location.coordinate),
                                      address: self.viewModel.address )
-        modelContext.insert(spot)
+        self.modelContext.insert(spot)
     }
     
     private struct Constants {
