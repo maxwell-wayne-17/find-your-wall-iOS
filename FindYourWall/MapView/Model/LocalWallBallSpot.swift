@@ -11,6 +11,8 @@ import SwiftData
 /// This class defines the model for wall ball spots the user has saved on their device.
 @Model
 class LocalWallBallSpot {
+    
+    @Attribute(.unique)
     var name: String
     var coordinate: Coordinate
     var address: Address?
@@ -48,6 +50,10 @@ struct Address: Codable, Hashable {
     var cityName: String?
     var regionName: String?
     var region: Locale.Region?
+    
+    var streetAddress: String? {
+        self.shortAddress?.split(separator: ",").map(String.init).first
+    }
     
     init(fullAddress: String? = nil,
          shortAddress: String? = nil,

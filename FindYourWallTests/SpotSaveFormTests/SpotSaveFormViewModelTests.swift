@@ -103,4 +103,23 @@ struct SpotSaveFormViewModelTests {
         sut.streetAddress = "1 Apple Way"
         #expect(sut.address.shortAddress == sut.streetAddress)
     }
+    
+    @Test
+    func testInitWithLocalWallBallSpot() {
+        let address = Address(shortAddress: "123 Street St, City Name, 12345",
+        cityName: "City Name")
+        
+        let spot = LocalWallBallSpot(name: "Name",
+                                     coordinate: .init(from: .init(latitude: 123,
+                                                                   longitude: 123)),
+                                     address: address)
+        
+        let sut = SpotSaveFormViewModel(spot: spot)
+        
+        #expect(sut.name == spot.name)
+        #expect(sut.streetAddress == spot.address?.streetAddress)
+        #expect(sut.coordinate.latitude == spot.coordinate.cLCoordinate.latitude)
+        #expect(sut.coordinate.longitude == spot.coordinate.cLCoordinate.longitude)
+        #expect(sut.zipCode == "12345")
+    }
 }

@@ -11,6 +11,7 @@ import SwiftData
 struct LocalWallBallSpotSheetView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var showSaveForm = false
     
     let spot: LocalWallBallSpot
     
@@ -35,7 +36,7 @@ struct LocalWallBallSpotSheetView: View {
             
             HStack {
                 Button {
-                    // TODO: Edit with spot save form
+                    self.showSaveForm = true
                 } label: {
                     Text("Edit")
                 }
@@ -53,6 +54,10 @@ struct LocalWallBallSpotSheetView: View {
         }
         .padding()
         .presentationDetents([Constants.detents])
+        .sheet(isPresented: self.$showSaveForm,
+               onDismiss: { self.dismiss() }) {
+            SpotSaveFormView(viewModel: .init(spot: self.spot))
+        }
     }
     
     private func deleteSpot() {

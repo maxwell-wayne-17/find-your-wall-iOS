@@ -28,6 +28,7 @@ struct MapView: View {
                     
                     ForEach(self.localWallBallSpots) { spot in
                         // TODO: There is a crash when clicking on the annotations
+                        // TODO: Test updating a location
                         Annotation("", coordinate: spot.coordinate.cLCoordinate, anchor: .bottom) {
                             Image(systemName: "star.fill")
                                 .resizable()

@@ -78,7 +78,7 @@ struct SpotSaveFormView: View {
     
     private func saveWallBallSpot() {
         let spot = LocalWallBallSpot(name: self.viewModel.name,
-                                     coordinate: .init(from: self.viewModel.mapItem.location.coordinate),
+                                     coordinate: .init(from: self.viewModel.coordinate),
                                      address: self.viewModel.address )
         self.modelContext.insert(spot)
     }

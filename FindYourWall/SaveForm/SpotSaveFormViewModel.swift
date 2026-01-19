@@ -10,9 +10,10 @@ import MapKit
 
 @Observable
 class SpotSaveFormViewModel: NSObject {
+
+    var mapItem: MKMapItem?
     
-    let mapItem: MKMapItem
-    
+    let coordinate: CLLocationCoordinate2D
     var streetAddress: String
     var city: String
     var name = ""
@@ -31,9 +32,25 @@ class SpotSaveFormViewModel: NSObject {
         !self.name.trimmingCharacters(in: .whitespaces).isEmpty
     }
     
+    init(spot: LocalWallBallSpot) {
+        self.coordinate = spot.coordinate.cLCoordinate
+        self.streetAddress = spot.address?.streetAddress ?? ""
+        self.city = spot.address?.cityName ?? ""
+        self.name = spot.name
+        
+        let splitAddress = spot.address?.shortAddress?.split(separator: ",").map(String.init) ?? []
+        if splitAddress.count >= 3 {
+            let zip = splitAddress[2].filter { $0.isNumber }
+            if zip.count == 5 {
+                self._zipCode = String(zip)
+            }
+        }
+    }
+    
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         
+        self.coordinate = mapItem.location.coordinate
         self.streetAddress = mapItem.address?.shortAddress?.split(separator: ",").map(String.init).first ?? ""
         self.city = mapItem.addressRepresentations?.cityName ?? ""
     }
@@ -61,8 +78,10 @@ class SpotSaveFormViewModel: NSObject {
     }
     
     var address: Address {
-        if self.shortAddress.isEmpty {
-            return Address(from: self.mapItem)
+        if let mapItem = self.mapItem, self.shortAddress.isEmpty {
+            return Address(from: mapItem)
+        } else if self.shortAddress.isEmpty {
+            return Address()
         }
         
         return Address(shortAddress: self.shortAddress.isEmpty ? nil : self.shortAddress,
