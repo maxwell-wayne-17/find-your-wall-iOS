@@ -26,7 +26,7 @@ struct LocalWallBallSpotSheetView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.top])
             
-            Text(spot.address?.shortAddress ?? "\(spot.coordinate.cLCoordinate)")
+            Text(spot.streetAddress ?? "\(spot.cLCoordinate)")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,6 +72,9 @@ struct LocalWallBallSpotSheetView: View {
 
 #Preview {
     SheetPreviewHost(content: LocalWallBallSpotSheetView(spot: .init(name: "Name",
-                                                                     coordinate: .init(from: .empowerStadium),
-                                                                     address: .init(shortAddress: "1234 Address St."))))
+                                                                     latitude: 123,
+                                                                     longitude: 456,
+                                                                     streetAddress: "123 Street St",
+                                                                     cityName: "City Name",
+                                                                     zipCode: "12345")))
 }

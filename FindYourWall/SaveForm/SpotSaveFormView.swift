@@ -78,8 +78,11 @@ struct SpotSaveFormView: View {
     
     private func saveWallBallSpot() {
         let spot = LocalWallBallSpot(name: self.viewModel.name,
-                                     coordinate: .init(from: self.viewModel.coordinate),
-                                     address: self.viewModel.address )
+                                     latitude: self.viewModel.coordinate.latitude,
+                                     longitude: self.viewModel.coordinate.longitude,
+                                     streetAddress: self.viewModel.streetAddress,
+                                     cityName: self.viewModel.city,
+                                     zipCode: self.viewModel.zipCode)
         self.modelContext.insert(spot)
     }
     

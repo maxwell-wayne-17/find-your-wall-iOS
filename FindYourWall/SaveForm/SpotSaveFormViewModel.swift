@@ -33,58 +33,18 @@ class SpotSaveFormViewModel: NSObject {
     }
     
     init(spot: LocalWallBallSpot) {
-        self.coordinate = spot.coordinate.cLCoordinate
-        self.streetAddress = spot.address?.streetAddress ?? ""
-        self.city = spot.address?.cityName ?? ""
+        self.coordinate = spot.cLCoordinate
+        self.streetAddress = spot.streetAddress ?? ""
+        self.city = spot.cityName ?? ""
         self.name = spot.name
-        
-        let splitAddress = spot.address?.shortAddress?.split(separator: ",").map(String.init) ?? []
-        if splitAddress.count >= 3 {
-            let zip = splitAddress[2].filter { $0.isNumber }
-            if zip.count == 5 {
-                self._zipCode = String(zip)
-            }
-        }
+        self._zipCode = spot.zipCode ?? ""
     }
     
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         
         self.coordinate = mapItem.location.coordinate
-        self.streetAddress = mapItem.address?.shortAddress?.split(separator: ",").map(String.init).first ?? ""
+        self.streetAddress = mapItem.address?.streetAddress ?? ""
         self.city = mapItem.addressRepresentations?.cityName ?? ""
-    }
-    
-    private var shortAddress: String {
-        var shortAddress = ""
-        
-        if !self.streetAddress.isEmpty {
-            shortAddress = self.streetAddress
-        } else {
-            return ""
-        }
-        
-        if !self.city.isEmpty {
-            shortAddress = "\(shortAddress), \(self.city)"
-        } else {
-            return shortAddress
-        }
-        
-        if !self.zipCode.isEmpty {
-            shortAddress = "\(shortAddress), \(self.zipCode)"
-        }
-        
-        return shortAddress
-    }
-    
-    var address: Address {
-        if let mapItem = self.mapItem, self.shortAddress.isEmpty {
-            return Address(from: mapItem)
-        } else if self.shortAddress.isEmpty {
-            return Address()
-        }
-        
-        return Address(shortAddress: self.shortAddress.isEmpty ? nil : self.shortAddress,
-                cityName: self.city.isEmpty ? nil : self.city)
     }
 }
