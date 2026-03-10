@@ -30,8 +30,6 @@ struct MarkerSheetView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
             
-            Spacer()
-            
             Button(action: {
                 self.showSaveForm = true
             }) {

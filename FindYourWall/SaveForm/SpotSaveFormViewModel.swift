@@ -45,9 +45,17 @@ class SpotSaveFormViewModel: NSObject {
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         
-        self.name = mapItem.name ?? ""
+        if let mapItemName = mapItem.name, mapItemName != MKMapItem.unknownLocation {
+            self.name = mapItemName
+        }
         self.coordinate = mapItem.location.coordinate
         self.streetAddress = mapItem.address?.streetAddress ?? ""
         self.city = mapItem.addressRepresentations?.cityName ?? ""
+    }
+}
+
+extension MKMapItem {
+    static var unknownLocation: String {
+        "Unknown Location"
     }
 }

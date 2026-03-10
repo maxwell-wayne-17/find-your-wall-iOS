@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import MapKit
 
 struct LocalWallBallSpotSheetView: View {
     @Environment(\.modelContext) var modelContext
@@ -32,24 +33,30 @@ struct LocalWallBallSpotSheetView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
                         
-            Spacer()
-            
-            HStack {
+            VStack(spacing: Constants.buttonVstackSpacing) {
                 Button {
-                    self.showSaveForm = true
+                    self.openInMaps()
                 } label: {
-                    Text("Edit")
+                    Text("GO ➡️")
                 }
-                .buttonStyle(.primaryAction())
+                .buttonStyle(.primaryAction(.green))
                 
-                Button {
-                    self.deleteSpot()
-                    self.dismiss()
-                } label: {
-                    Text("Delete")
+                HStack {
+                    Button {
+                        self.showSaveForm = true
+                    } label: {
+                        Text("Edit")
+                    }
+                    .buttonStyle(.primaryAction())
+                    
+                    Button {
+                        self.deleteSpot()
+                        self.dismiss()
+                    } label: {
+                        Text("Delete")
+                    }
+                    .buttonStyle(.primaryAction(.red))
                 }
-                .buttonStyle(.primaryAction(.red))
-                
             }
         }
         .padding()
@@ -60,13 +67,23 @@ struct LocalWallBallSpotSheetView: View {
         }
     }
     
+    private func openInMaps() {
+        let mapItem = MKMapItem(location: .init(latitude: spot.latitude,
+                                                longitude: spot.longitude),
+                                address: nil)
+        mapItem.openInMaps(launchOptions: [
+            MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+        ])
+    }
+
     private func deleteSpot() {
         self.modelContext.delete(self.spot)
     }
     
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
-        static let detents: PresentationDetent = .height(200)
+        static let buttonVstackSpacing: CGFloat = -20
+        static let detents: PresentationDetent = .height(260)
     }
 }
 

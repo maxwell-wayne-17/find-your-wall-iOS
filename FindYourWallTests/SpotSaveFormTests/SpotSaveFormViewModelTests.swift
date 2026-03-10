@@ -55,8 +55,7 @@ struct SpotSaveFormViewModelTests {
     @Test
     func testIsFormValid() {
         let sut = self.defaultSut
-        
-        sut.name = ""
+
         #expect(sut.isFormValid == false)
         
         sut.name = "Test Spot"
