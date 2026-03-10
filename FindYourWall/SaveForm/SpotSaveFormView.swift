@@ -60,18 +60,25 @@ struct SpotSaveFormView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 
-                // TODO: The color of this button is glitchy when it is disabled in dark mode
-                Button("Save") {
-                    if self.viewModel.isFormValid {
-                        self.saveWallBallSpot()
+                HStack {
+                    Button("Cancel") {
                         self.dismiss()
                     }
+                    .buttonStyle(.primaryAction())
+                    
+                    // TODO: The color of this button is glitchy when it is disabled in dark mode
+                    Button("Save") {
+                        if self.viewModel.isFormValid {
+                            self.saveWallBallSpot()
+                            self.dismiss()
+                        }
+                    }
+                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil)
+                    .buttonStyle(.primaryAction())
                 }
                 // Ignoring the keyboard overlay wasn't working,
                 // so worked around by making button invisible when text fields are in focus
-                .disabled(!self.viewModel.isFormValid || self.focusedField != nil)
                 .opacity(self.focusedField != nil ? 0 : 1)
-                .buttonStyle(.primaryAction())
             }
         }
     }
