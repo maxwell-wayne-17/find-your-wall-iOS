@@ -31,7 +31,7 @@ struct LocalWallBallSpotSheetView: View {
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
-            
+                        
             Spacer()
             
             HStack {

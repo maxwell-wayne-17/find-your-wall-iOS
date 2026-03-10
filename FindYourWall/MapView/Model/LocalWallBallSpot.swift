@@ -46,12 +46,16 @@ class LocalWallBallSpot {
 
     init(from item: MKMapItem) {
         self.id = UUID()
-        self.name = item.name ?? "Unknown Spot"
+        self.name = item.name ?? Self.unknownName
         self.latitude = item.location.coordinate.latitude
         self.longitude = item.location.coordinate.longitude
         self.streetAddress = item.address?.streetAddress
         self.cityName = item.addressRepresentations?.cityName
     }
+}
+
+extension LocalWallBallSpot {
+    static let unknownName = "Unknown Spot"
 }
 
 extension MKAddress {

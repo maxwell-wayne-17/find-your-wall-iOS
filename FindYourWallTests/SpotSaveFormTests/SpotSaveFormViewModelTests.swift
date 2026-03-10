@@ -34,7 +34,7 @@ struct SpotSaveFormViewModelTests {
         
         #expect(sut.streetAddress == "1 Apple Park Way")
         #expect(sut.city == "Cupertino")
-        #expect(sut.name.isEmpty)
+        #expect(sut.name == mapItem.name)
         #expect(sut.zipCode.isEmpty)
     }
     
@@ -56,6 +56,7 @@ struct SpotSaveFormViewModelTests {
     func testIsFormValid() {
         let sut = self.defaultSut
         
+        sut.name = ""
         #expect(sut.isFormValid == false)
         
         sut.name = "Test Spot"

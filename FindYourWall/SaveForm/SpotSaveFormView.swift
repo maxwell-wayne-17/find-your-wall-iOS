@@ -84,13 +84,20 @@ struct SpotSaveFormView: View {
     }
     
     private func saveWallBallSpot() {
-        let spot = LocalWallBallSpot(name: self.viewModel.name,
-                                     latitude: self.viewModel.coordinate.latitude,
-                                     longitude: self.viewModel.coordinate.longitude,
-                                     streetAddress: self.viewModel.streetAddress,
-                                     cityName: self.viewModel.city,
-                                     zipCode: self.viewModel.zipCode)
-        self.modelContext.insert(spot)
+        if let spot = self.viewModel.existingSpot {
+            spot.name = self.viewModel.name
+            spot.streetAddress = self.viewModel.streetAddress
+            spot.cityName = self.viewModel.city
+            spot.zipCode = self.viewModel.zipCode
+        } else {
+            let spot = LocalWallBallSpot(name: self.viewModel.name,
+                                         latitude: self.viewModel.coordinate.latitude,
+                                         longitude: self.viewModel.coordinate.longitude,
+                                         streetAddress: self.viewModel.streetAddress,
+                                         cityName: self.viewModel.city,
+                                         zipCode: self.viewModel.zipCode)
+            self.modelContext.insert(spot)
+        }
     }
     
     private struct Constants {

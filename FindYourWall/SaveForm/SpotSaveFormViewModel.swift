@@ -12,7 +12,8 @@ import MapKit
 class SpotSaveFormViewModel: NSObject {
 
     var mapItem: MKMapItem?
-    
+    var existingSpot: LocalWallBallSpot?
+
     let coordinate: CLLocationCoordinate2D
     var streetAddress: String
     var city: String
@@ -33,10 +34,11 @@ class SpotSaveFormViewModel: NSObject {
     }
     
     init(spot: LocalWallBallSpot) {
+        self.existingSpot = spot
         self.coordinate = spot.cLCoordinate
         self.streetAddress = spot.streetAddress ?? ""
         self.city = spot.cityName ?? ""
-        self.name = spot.name
+        self.name = spot.name == LocalWallBallSpot.unknownName ? "" : spot.name
         self._zipCode = spot.zipCode ?? ""
     }
     
