@@ -13,7 +13,7 @@ import SwiftData
 @Model
 class LocalWallBallSpot {
     @Attribute(.unique)
-    private var id: UUID
+    var id: UUID
 
     var name: String
     
