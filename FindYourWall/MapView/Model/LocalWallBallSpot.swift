@@ -5,6 +5,7 @@
 //  Created by Max Wayne on 12/17/25.
 //
 
+import Foundation
 import MapKit
 import SwiftData
 
@@ -12,29 +13,29 @@ import SwiftData
 @Model
 class LocalWallBallSpot {
     @Attribute(.unique)
+    private var id: UUID
+
     var name: String
     
-    // var coordinate: Coordinate
     var latitude: Double
     var longitude: Double
     var cLCoordinate: CLLocationCoordinate2D {
         .init(latitude: self.latitude, longitude: self.longitude)
     }
     
-    // var address: Address?
     var streetAddress: String?
     var cityName: String?
     var zipCode: String?
     
-    // Identifier ?
     // Eventually image
-    
+
     init(name: String,
          latitude: Double,
          longitude: Double,
          streetAddress: String? = nil,
          cityName: String? = nil,
          zipCode: String? = nil) {
+        self.id = UUID()
         self.name = name
         self.latitude = latitude
         self.longitude = longitude
@@ -42,8 +43,9 @@ class LocalWallBallSpot {
         self.cityName = cityName
         self.zipCode = zipCode
     }
-    
+
     init(from item: MKMapItem) {
+        self.id = UUID()
         self.name = item.name ?? "Unknown Spot"
         self.latitude = item.location.coordinate.latitude
         self.longitude = item.location.coordinate.longitude
