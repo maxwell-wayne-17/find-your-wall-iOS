@@ -115,6 +115,7 @@ struct MapView: View {
                         Button {
                             self.searchText = ""
                             self.searchFieldFocus = false
+                            self.viewModel.mapSearchResults = []
                         } label: {
                             Image(systemName: Constants.searchCancelIcon)
                         }
@@ -138,6 +139,10 @@ struct MapView: View {
             Button(action: {
                 withAnimation {
                     self.viewModel.userIsPlacingPin.toggle()
+                    // Clear the previous set pin if user is trying to place another.
+                    if self.viewModel.userIsPlacingPin {
+                        self.viewModel.userPlacedLocation = nil
+                    }
                 }
             }) {
                 Image(systemName: Constants.fabIconName)
