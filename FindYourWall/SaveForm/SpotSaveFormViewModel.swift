@@ -43,6 +43,7 @@ class SpotSaveFormViewModel: NSObject {
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         
+        self.name = mapItem.name ?? ""
         self.coordinate = mapItem.location.coordinate
         self.streetAddress = mapItem.address?.streetAddress ?? ""
         self.city = mapItem.addressRepresentations?.cityName ?? ""
