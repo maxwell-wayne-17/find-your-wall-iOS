@@ -18,7 +18,8 @@ class SpotSaveFormViewModel: NSObject {
     var streetAddress: String
     var city: String
     var name = ""
-    
+    var note: String = ""
+
     private var _zipCode: String = ""
     var zipCode: String {
         get {
@@ -40,6 +41,7 @@ class SpotSaveFormViewModel: NSObject {
         self.city = spot.cityName ?? ""
         self.name = spot.name == LocalWallBallSpot.unknownName ? "" : spot.name
         self._zipCode = spot.zipCode ?? ""
+        self.note = spot.note ?? ""
     }
     
     init(mapItem: MKMapItem) {

@@ -32,7 +32,17 @@ struct LocalWallBallSpotSheetView: View {
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
-                        
+
+            if let note = spot.note, !note.isEmpty {
+                Text(note)
+                    .font(.body)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(10)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(8)
+            }
+            
+
             VStack(spacing: Constants.buttonVstackSpacing) {
                 Button {
                     self.openInMaps()
@@ -60,7 +70,7 @@ struct LocalWallBallSpotSheetView: View {
             }
         }
         .padding()
-        .presentationDetents([Constants.detents])
+        .presentationDetents([self.getDetents()])
         .sheet(isPresented: self.$showSaveForm,
                onDismiss: { self.dismiss() }) {
             SpotSaveFormView(viewModel: .init(spot: self.spot))
@@ -80,10 +90,16 @@ struct LocalWallBallSpotSheetView: View {
         self.modelContext.delete(self.spot)
     }
     
+    private func getDetents() -> PresentationDetent {
+        if let note = spot.note, !note.isEmpty { return Constants.detentsWithNote }
+        return Constants.detentsWithoutNote
+    }
+    
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
-        static let detents: PresentationDetent = .height(260)
+        static let detentsWithoutNote: PresentationDetent = .height(260)
+        static let detentsWithNote: PresentationDetent = .height(500)
     }
 }
 
@@ -93,5 +109,6 @@ struct LocalWallBallSpotSheetView: View {
                                                                      longitude: 456,
                                                                      streetAddress: "123 Street St",
                                                                      cityName: "City Name",
-                                                                     zipCode: "12345")))
+                                                                     zipCode: "12345",
+                                                                     note: "Show up to the building and turn left. Use the wall on the right.")))
 }

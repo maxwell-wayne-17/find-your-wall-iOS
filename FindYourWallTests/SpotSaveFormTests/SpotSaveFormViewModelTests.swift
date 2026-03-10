@@ -36,6 +36,7 @@ struct SpotSaveFormViewModelTests {
         #expect(sut.city == "Cupertino")
         #expect(sut.name == mapItem.name)
         #expect(sut.zipCode.isEmpty)
+        #expect(sut.note.isEmpty)
     }
     
     @Test
@@ -80,7 +81,8 @@ struct SpotSaveFormViewModelTests {
                                      longitude: 456,
                                      streetAddress: "123 Street St",
                                      cityName: "City Name",
-                                     zipCode: "12345")
+                                     zipCode: "12345",
+                                     note: "New note")
         
         let sut = SpotSaveFormViewModel(spot: spot)
         
@@ -89,5 +91,6 @@ struct SpotSaveFormViewModelTests {
         #expect(sut.coordinate.latitude == spot.latitude)
         #expect(sut.coordinate.longitude == spot.longitude)
         #expect(sut.zipCode == "12345")
+        #expect(sut.note == spot.note)
     }
 }
