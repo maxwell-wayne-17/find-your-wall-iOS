@@ -19,8 +19,6 @@ struct LocalWallBallSpotSheetView: View {
     var body: some View {
         VStack(spacing: Constants.vstackSpacing) {
             
-            Spacer()
-            
             Text(spot.name)
                 .font(.title3)
                 .fontWeight(.semibold)
@@ -34,23 +32,27 @@ struct LocalWallBallSpotSheetView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if let note = spot.note, !note.isEmpty {
-                Text(note)
-                    .font(.body)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .padding(10)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
+                ScrollView {
+                    Text(note)
+                        .font(.body)
+                        .fixedSize(horizontal: false, vertical: false)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(8)
             }
 
             if let data = spot.imageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 180)
+                    .frame(maxWidth: .infinity, maxHeight: 300)
                     .clipped()
                     .cornerRadius(8)
             }
+            
 
             VStack(spacing: Constants.buttonVstackSpacing) {
                 Button {
@@ -79,6 +81,7 @@ struct LocalWallBallSpotSheetView: View {
             }
         }
         .padding()
+        .padding([.top], Constants.vstackSpacing)
         .presentationDetents([self.getDetents()])
         .sheet(isPresented: self.$showSaveForm,
                onDismiss: { self.dismiss() }) {
@@ -100,19 +103,16 @@ struct LocalWallBallSpotSheetView: View {
     }
     
     private func getDetents() -> PresentationDetent {
-        let hasNote = !(spot.note ?? "").isEmpty
-        let hasImage = spot.imageData != nil
-        if hasNote && hasImage { return Constants.detentsWithNoteAndImage }
-        if hasNote || hasImage { return Constants.detentsWithNote }
-        return Constants.detentsWithoutNote
+        if spot.imageData != nil { return .large }
+        if !(spot.note ?? "").isEmpty { return Constants.detentsWithNote }
+        return Constants.detentsWithoutNoteOrImage
     }
 
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
-        static let detentsWithoutNote: PresentationDetent = .height(260)
+        static let detentsWithoutNoteOrImage: PresentationDetent = .height(260)
         static let detentsWithNote: PresentationDetent = .height(500)
-        static let detentsWithNoteAndImage: PresentationDetent = .height(680)
     }
 }
 
