@@ -13,6 +13,7 @@ struct LocalWallBallSpotSheetView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showSaveForm = false
+    @State private var showImagePreview = false
     
     let spot: LocalWallBallSpot
     
@@ -45,12 +46,16 @@ struct LocalWallBallSpotSheetView: View {
             }
 
             if let data = spot.imageData, let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: 300)
-                    .clipped()
-                    .cornerRadius(8)
+                Button { showImagePreview = true } label: {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: 300)
+                        .clipped()
+                        .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle()) // This is required, otherwise the tappable area includes the portion of the image that got clipped.
             }
             
 
@@ -63,12 +68,6 @@ struct LocalWallBallSpotSheetView: View {
                 .buttonStyle(.primaryAction(.green))
                 
                 HStack {
-                    Button {
-                        self.showSaveForm = true
-                    } label: {
-                        Text("Edit")
-                    }
-                    .buttonStyle(.primaryAction())
                     
                     Button {
                         self.deleteSpot()
@@ -77,15 +76,26 @@ struct LocalWallBallSpotSheetView: View {
                         Text("Delete")
                     }
                     .buttonStyle(.primaryAction(.red))
+                    
+                    Button {
+                        self.showSaveForm = true
+                    } label: {
+                        Text("Edit")
+                    }
+                    .buttonStyle(.primaryAction())
                 }
             }
         }
         .padding()
         .padding([.top], Constants.vstackSpacing)
         .presentationDetents([self.getDetents()])
-        .sheet(isPresented: self.$showSaveForm,
-               onDismiss: { self.dismiss() }) {
+        .sheet(isPresented: self.$showSaveForm) {
             SpotSaveFormView(viewModel: .init(spot: self.spot))
+        }
+        .fullScreenCover(isPresented: $showImagePreview) {
+            if let data = spot.imageData, let uiImage = UIImage(data: data) {
+                ImagePreviewView(uiImage: uiImage)
+            }
         }
     }
     
