@@ -41,7 +41,16 @@ struct LocalWallBallSpotSheetView: View {
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(8)
             }
-            
+
+            if let data = spot.imageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 180)
+                    .clipped()
+                    .cornerRadius(8)
+            }
 
             VStack(spacing: Constants.buttonVstackSpacing) {
                 Button {
@@ -91,15 +100,19 @@ struct LocalWallBallSpotSheetView: View {
     }
     
     private func getDetents() -> PresentationDetent {
-        if let note = spot.note, !note.isEmpty { return Constants.detentsWithNote }
+        let hasNote = !(spot.note ?? "").isEmpty
+        let hasImage = spot.imageData != nil
+        if hasNote && hasImage { return Constants.detentsWithNoteAndImage }
+        if hasNote || hasImage { return Constants.detentsWithNote }
         return Constants.detentsWithoutNote
     }
-    
+
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
         static let detentsWithoutNote: PresentationDetent = .height(260)
         static let detentsWithNote: PresentationDetent = .height(500)
+        static let detentsWithNoteAndImage: PresentationDetent = .height(680)
     }
 }
 

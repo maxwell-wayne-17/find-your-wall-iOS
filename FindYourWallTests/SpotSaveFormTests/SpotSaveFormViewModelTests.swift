@@ -93,4 +93,16 @@ struct SpotSaveFormViewModelTests {
         #expect(sut.zipCode == "12345")
         #expect(sut.note == spot.note)
     }
+    
+    @Test
+    func testClearImage() {
+        let sut = self.defaultSut
+        #expect(sut.imageData == nil)
+        
+        sut.imageData = Data()
+        #expect(sut.imageData != nil)
+        
+        sut.clearImage()
+        #expect(sut.imageData == nil)
+    }
 }

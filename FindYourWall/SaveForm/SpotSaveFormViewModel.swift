@@ -19,6 +19,7 @@ class SpotSaveFormViewModel: NSObject {
     var city: String
     var name = ""
     var note: String = ""
+    var imageData: Data?
 
     private var _zipCode: String = ""
     var zipCode: String {
@@ -42,6 +43,7 @@ class SpotSaveFormViewModel: NSObject {
         self.name = spot.name == LocalWallBallSpot.unknownName ? "" : spot.name
         self._zipCode = spot.zipCode ?? ""
         self.note = spot.note ?? ""
+        self.imageData = spot.imageData
     }
     
     init(mapItem: MKMapItem) {
@@ -53,6 +55,10 @@ class SpotSaveFormViewModel: NSObject {
         self.coordinate = mapItem.location.coordinate
         self.streetAddress = mapItem.address?.streetAddress ?? ""
         self.city = mapItem.addressRepresentations?.cityName ?? ""
+    }
+    
+    func clearImage() {
+        self.imageData = nil
     }
 }
 

@@ -27,8 +27,7 @@ class LocalWallBallSpot {
     var cityName: String?
     var zipCode: String?
     var note: String?
-
-    // Eventually image
+    var imageData: Data?
 
     init(name: String,
          latitude: Double,
@@ -36,7 +35,8 @@ class LocalWallBallSpot {
          streetAddress: String? = nil,
          cityName: String? = nil,
          zipCode: String? = nil,
-         note: String? = nil) {
+         note: String? = nil,
+         imageData: Data? = nil) {
         self.id = UUID()
         self.name = name
         self.latitude = latitude
@@ -45,6 +45,7 @@ class LocalWallBallSpot {
         self.cityName = cityName
         self.zipCode = zipCode
         self.note = note
+        self.imageData = imageData
     }
 
     init(from item: MKMapItem) {

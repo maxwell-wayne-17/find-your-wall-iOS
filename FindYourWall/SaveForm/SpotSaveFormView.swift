@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import SwiftData
+import PhotosUI
 
 struct SpotSaveFormView: View {
     
@@ -20,6 +21,13 @@ struct SpotSaveFormView: View {
         case name, streetAddress, city, zipCode, note
     }
     @FocusState private var focusedField: FocusedField?
+    
+    @State private var imagePicker = ImagePicker()
+    @State private var photosPickerItem: PhotosPickerItem?
+    @State private var showCamera = false
+    @State private var showImageSourceSheet = false
+    @State private var cameraError: CameraPermission.CameraError?
+    @State private var selectedImage: UIImage?
     
     init(viewModel: SpotSaveFormViewModel) {
         self.viewModel = viewModel
@@ -50,6 +58,61 @@ struct SpotSaveFormView: View {
                 Section(header: Text("Note (Optional)")) {
                     TextEditor(text: self.$viewModel.note)
                         .focused(self.$focusedField, equals: .note)
+                        .frame(minHeight: 50)
+                }
+
+                Section(header: Text("Image (Optional)")) {
+                    if let data = self.viewModel.imageData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 200)
+                            .clipped()
+                            .listRowInsets(EdgeInsets())
+                            .onTapGesture { self.showImageSourceSheet = true }
+                    } else {
+                        HStack(alignment: .center) {
+                            
+                            Button("Camera", systemImage: "camera") {
+                                if let error = CameraPermission.checkPermissions() {
+                                    self.cameraError = error
+                                } else {
+                                    showCamera.toggle()
+                                }
+                            }
+                            .alert(isPresented: .constant(self.cameraError != nil),
+                                   error: self.cameraError) { _ in 
+                                Button("OK") {
+                                    self.cameraError = nil
+                                }
+                            } message: { error in
+                                Text(error.recoverySuggestion ?? "Try again later")
+                            }
+                            .sheet(isPresented: self.$showCamera) {
+                                UIKitCamera(selectedImage: self.$selectedImage)
+                                    .ignoresSafeArea()
+                            }
+                            
+                            Spacer()
+                            
+                            PhotosPicker(selection: self.$imagePicker.imageSelection) {
+                                Label("Photos", systemImage: "photo")
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                    }
+                    
+                    if let data = self.viewModel.imageData, let _ = UIImage(data: data) {
+                        HStack {
+                            Spacer()
+                            Button("Clear Image") {
+                                self.viewModel.clearImage()
+                                self.imagePicker.imageSelection = nil
+                            }
+                            Spacer()
+                        }
+                    }
                 }
             }
             .navigationTitle("Wall Ball Spot")
@@ -85,6 +148,14 @@ struct SpotSaveFormView: View {
                 // so worked around by making button invisible when text fields are in focus
                 .opacity(self.focusedField != nil ? 0 : 1)
             }
+            .onAppear {
+                imagePicker.setup(self.viewModel)
+            }
+            .onChange(of: self.selectedImage) {
+                if let image = self.selectedImage {
+                    self.viewModel.imageData = image.jpegData(compressionQuality: Constants.compressionQuality)
+                }
+            }
         }
     }
     
@@ -96,6 +167,7 @@ struct SpotSaveFormView: View {
             spot.cityName = self.viewModel.city
             spot.zipCode = self.viewModel.zipCode
             spot.note = noteValue
+            spot.imageData = self.viewModel.imageData
         } else {
             let spot = LocalWallBallSpot(name: self.viewModel.name,
                                          latitude: self.viewModel.coordinate.latitude,
@@ -103,13 +175,15 @@ struct SpotSaveFormView: View {
                                          streetAddress: self.viewModel.streetAddress,
                                          cityName: self.viewModel.city,
                                          zipCode: self.viewModel.zipCode,
-                                         note: noteValue)
+                                         note: noteValue,
+                                         imageData: self.viewModel.imageData)
             self.modelContext.insert(spot)
         }
     }
     
     private struct Constants {
         static let keyboardDismissIcon = "keyboard.chevron.compact.down"
+        static let compressionQuality = 0.8
     }
 }
 
