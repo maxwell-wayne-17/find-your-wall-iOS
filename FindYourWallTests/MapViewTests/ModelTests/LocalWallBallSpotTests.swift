@@ -25,8 +25,9 @@ struct LocalWallBallSpotTests {
         
         
         for (mapItem, spot) in zip(mapItems, spots) {
-            #expect(spot.streetAddress == mapItem.address?.streetAddress)            
-            #expect(spot.cityName == mapItem.addressRepresentations?.cityName)
+            #expect(spot.address == mapItem.address?.shortAddress)
+            #expect(spot.cLCoordinate.latitude == mapItem.location.coordinate.latitude)
+            #expect(spot.cLCoordinate.longitude == mapItem.location.coordinate.longitude)
         }
     }
 

@@ -9,6 +9,7 @@
 // Subscribe on YouTube: https://youTube.com/@StewartLynch
 // Buy me a ko-fi:  https://ko-fi.com/StewartLynch
 // ('me' refers to Stewart Lynch)
+// Referenced Stewart Lynch's Youtube series: https://www.youtube.com/watch?v=1ZYE5FcUN4Y
 
 
 import SwiftUI
@@ -19,7 +20,6 @@ import PhotosUI
 class ImagePicker {
     
     var image: Image?
-    var images: [Image] = []
   
     var vm: SpotSaveFormViewModel?
     

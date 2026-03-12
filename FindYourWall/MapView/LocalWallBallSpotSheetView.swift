@@ -26,7 +26,7 @@ struct LocalWallBallSpotSheetView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.top])
             
-            Text(spot.streetAddress ?? "\(spot.cLCoordinate)")
+            Text(spot.address ?? "\(spot.cLCoordinate)")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -44,6 +44,8 @@ struct LocalWallBallSpotSheetView: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(8)
             }
+            
+            Spacer()
 
             if let data = spot.imageData, let uiImage = UIImage(data: data) {
                 Button { showImagePreview = true } label: {
@@ -130,8 +132,6 @@ struct LocalWallBallSpotSheetView: View {
     SheetPreviewHost(content: LocalWallBallSpotSheetView(spot: .init(name: "Name",
                                                                      latitude: 123,
                                                                      longitude: 456,
-                                                                     streetAddress: "123 Street St",
-                                                                     cityName: "City Name",
-                                                                     zipCode: "12345",
+                                                                     address: "123 Street St",
                                                                      note: "Show up to the building and turn left. Use the wall on the right.")))
 }

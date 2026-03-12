@@ -29,30 +29,14 @@ struct SpotSaveFormViewModelTests {
     @Test
     func testPrepopulatedAddress() async throws {
         let mapItem = try #require(await self.getMapItemWithAddress())
-        
+
         let sut = SpotSaveFormViewModel(mapItem: mapItem)
-        
-        #expect(sut.streetAddress == "1 Apple Park Way")
-        #expect(sut.city == "Cupertino")
+
+        #expect(sut.address == mapItem.address?.shortAddress)
         #expect(sut.name == mapItem.name)
-        #expect(sut.zipCode.isEmpty)
         #expect(sut.note.isEmpty)
     }
-    
-    @Test
-    func testZipCodePropertyFilter() {
-        let sut = self.defaultSut
-        
-        sut.zipCode = "123abc456"
-        #expect(sut.zipCode == "12345")
-        
-        sut.zipCode = "1234567"
-        #expect(sut.zipCode == "12345")
-        
-        sut.zipCode = "adshfugapdohi"
-        #expect(sut.zipCode.isEmpty)
-    }
-    
+
     @Test
     func testIsFormValid() {
         let sut = self.defaultSut
@@ -67,30 +51,25 @@ struct SpotSaveFormViewModelTests {
     @Test
     func testAddressFromMapItemIsUsedWhenAddressPropertiesArentSet() async throws {
         let mapItem = try #require(await self.getMapItemWithAddress())
-        
+
         let sut = SpotSaveFormViewModel(mapItem: mapItem)
-        #expect(sut.streetAddress == mapItem.address?.streetAddress)
-        #expect(sut.city == mapItem.addressRepresentations?.cityName)
+        #expect(sut.address == mapItem.address?.shortAddress)
     }
     
     @Test
     func testInitWithLocalWallBallSpot() {
-        
         let spot = LocalWallBallSpot(name: "Name",
                                      latitude: 123,
                                      longitude: 456,
-                                     streetAddress: "123 Street St",
-                                     cityName: "City Name",
-                                     zipCode: "12345",
+                                     address: "123 Street St",
                                      note: "New note")
-        
+
         let sut = SpotSaveFormViewModel(spot: spot)
-        
+
         #expect(sut.name == spot.name)
-        #expect(sut.streetAddress == spot.streetAddress)
+        #expect(sut.address == spot.address)
         #expect(sut.coordinate.latitude == spot.latitude)
         #expect(sut.coordinate.longitude == spot.longitude)
-        #expect(sut.zipCode == "12345")
         #expect(sut.note == spot.note)
     }
     

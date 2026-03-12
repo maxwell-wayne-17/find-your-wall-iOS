@@ -23,27 +23,21 @@ class LocalWallBallSpot {
         .init(latitude: self.latitude, longitude: self.longitude)
     }
     
-    var streetAddress: String?
-    var cityName: String?
-    var zipCode: String?
+    var address: String?
     var note: String?
     var imageData: Data?
 
     init(name: String,
          latitude: Double,
          longitude: Double,
-         streetAddress: String? = nil,
-         cityName: String? = nil,
-         zipCode: String? = nil,
+         address: String? = nil,
          note: String? = nil,
          imageData: Data? = nil) {
         self.id = UUID()
         self.name = name
         self.latitude = latitude
         self.longitude = longitude
-        self.streetAddress = streetAddress
-        self.cityName = cityName
-        self.zipCode = zipCode
+        self.address = address
         self.note = note
         self.imageData = imageData
     }
@@ -53,17 +47,10 @@ class LocalWallBallSpot {
         self.name = item.name ?? Self.unknownName
         self.latitude = item.location.coordinate.latitude
         self.longitude = item.location.coordinate.longitude
-        self.streetAddress = item.address?.streetAddress
-        self.cityName = item.addressRepresentations?.cityName
+        self.address = item.address?.shortAddress
     }
 }
 
 extension LocalWallBallSpot {
     static let unknownName = "Unknown Spot"
-}
-
-extension MKAddress {
-    var streetAddress: String? {
-        self.shortAddress?.split(separator: ",").map(String.init).first
-    }
 }

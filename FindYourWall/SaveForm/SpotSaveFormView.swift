@@ -18,7 +18,7 @@ struct SpotSaveFormView: View {
     @Bindable private var viewModel: SpotSaveFormViewModel
     
     private enum FocusedField {
-        case name, streetAddress, city, zipCode, note
+        case name, address, note
     }
     @FocusState private var focusedField: FocusedField?
     
@@ -43,22 +43,15 @@ struct SpotSaveFormView: View {
                 }
                 
                 Section(header: Text("Address (Optional)")) {
-                    TextField("Street Address", text: self.$viewModel.streetAddress)
-                        .focused(self.$focusedField, equals: .streetAddress)
-
-                    TextField("City", text: self.$viewModel.city)
-                        .focused(self.$focusedField, equals: .city)
-
-                    TextField("ZIP Code", text: self.$viewModel.zipCode)
-                        .keyboardType(.numberPad)
-                        .focused(self.$focusedField, equals: .zipCode)
-
+                    TextEditor(text: self.$viewModel.address)
+                        .focused(self.$focusedField, equals: .address)
+                        .frame(minHeight: 35)
                 }
 
                 Section(header: Text("Note (Optional)")) {
                     TextEditor(text: self.$viewModel.note)
                         .focused(self.$focusedField, equals: .note)
-                        .frame(minHeight: 50)
+                        .frame(minHeight: 60)
                 }
 
                 Section(header: Text("Image (Optional)")) {
@@ -99,6 +92,7 @@ struct SpotSaveFormView: View {
                             PhotosPicker(selection: self.$imagePicker.imageSelection) {
                                 Label("Photos", systemImage: "photo")
                             }
+                            // Note: without this modifier, the Section view merges both buttons into a single tappable area for the section, so tapping one button automatically taps both at the same time.
                             .buttonStyle(.borderless)
                         }
                     }
@@ -163,18 +157,14 @@ struct SpotSaveFormView: View {
         let noteValue: String? = self.viewModel.note.isEmpty ? nil : self.viewModel.note
         if let spot = self.viewModel.existingSpot {
             spot.name = self.viewModel.name
-            spot.streetAddress = self.viewModel.streetAddress
-            spot.cityName = self.viewModel.city
-            spot.zipCode = self.viewModel.zipCode
+            spot.address = self.viewModel.address
             spot.note = noteValue
             spot.imageData = self.viewModel.imageData
         } else {
             let spot = LocalWallBallSpot(name: self.viewModel.name,
                                          latitude: self.viewModel.coordinate.latitude,
                                          longitude: self.viewModel.coordinate.longitude,
-                                         streetAddress: self.viewModel.streetAddress,
-                                         cityName: self.viewModel.city,
-                                         zipCode: self.viewModel.zipCode,
+                                         address: self.viewModel.address,
                                          note: noteValue,
                                          imageData: self.viewModel.imageData)
             self.modelContext.insert(spot)
