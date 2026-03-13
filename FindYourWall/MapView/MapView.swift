@@ -28,12 +28,10 @@ struct MapView: View {
                     
                     ForEach(self.localWallBallSpots) { spot in
                         Annotation("", coordinate: spot.cLCoordinate, anchor: .bottom) {
-                            Image(systemName: "star.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 20, height: 20)
+                            Text("🥍")
+                                .font(.system(size: Constants.laxEmojiFontSize))
                                 .padding(7)
-                                .background(.yellow.gradient, in: .circle)
+                                .background(.blue.gradient, in: .circle)
                                 .onTapGesture {
                                     self.viewModel.selectedLocalSpot = spot
                                 }
@@ -157,6 +155,9 @@ struct MapView: View {
     // MARK: - Constants
     
     private struct Constants {
+        
+        static let laxEmojiFontSize: CGFloat = 18
+        
         static let searchCancelIcon = "xmark.circle.fill"
         static let searchCancelIconOffset: CGFloat = -5
         
