@@ -17,11 +17,10 @@ struct PrimaryButtonStyle: ButtonStyle {
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(self.backgroundColor)
+            .background(isEnabled ? self.backgroundColor : Color.gray)
             .foregroundColor(.white)
             .cornerRadius(12)
             .padding()
-            .grayscale(isEnabled ? 0 : 1.0)
     }
 }
 

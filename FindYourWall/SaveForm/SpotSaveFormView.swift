@@ -127,7 +127,6 @@ struct SpotSaveFormView: View {
                     }
                     .buttonStyle(.primaryAction())
                     
-                    // TODO: The color of this button is glitchy when it is disabled in dark mode
                     Button("Save") {
                         if self.viewModel.isFormValid {
                             self.saveWallBallSpot()

@@ -15,7 +15,6 @@ struct FindYourWallApp: App {
             MapView()
         }
         // TODO: Once we support viewing and deleting, we can store in persistent storage and not in memory
-        // TODO: SwiftData isn't working as expected.  Consider refactoring
         .modelContainer(for: LocalWallBallSpot.self, inMemory: true)
     }
 }
