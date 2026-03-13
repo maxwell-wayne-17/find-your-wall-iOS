@@ -22,7 +22,6 @@ struct SpotSaveFormView: View {
     }
     @FocusState private var focusedField: FocusedField?
     
-    @State private var imagePicker = ImagePicker()
     @State private var photosPickerItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showImageSourceSheet = false
@@ -89,7 +88,7 @@ struct SpotSaveFormView: View {
                             
                             Spacer()
                             
-                            PhotosPicker(selection: self.$imagePicker.imageSelection) {
+                            PhotosPicker(selection: self.$photosPickerItem) {
                                 Label("Photos", systemImage: "photo")
                             }
                             // Note: without this modifier, the Section view merges both buttons into a single tappable area for the section, so tapping one button automatically taps both at the same time.
@@ -102,7 +101,7 @@ struct SpotSaveFormView: View {
                             Spacer()
                             Button("Clear Image") {
                                 self.viewModel.clearImage()
-                                self.imagePicker.imageSelection = nil
+                                self.photosPickerItem = nil
                             }
                             Spacer()
                         }
@@ -142,8 +141,13 @@ struct SpotSaveFormView: View {
                 // so worked around by making button invisible when text fields are in focus
                 .opacity(self.focusedField != nil ? 0 : 1)
             }
-            .onAppear {
-                imagePicker.setup(self.viewModel)
+            .onChange(of: self.photosPickerItem) {
+                Task {
+                    if let data = try? await photosPickerItem?.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data) {
+                        self.viewModel.imageData = uiImage.jpegData(compressionQuality: Constants.compressionQuality)
+                    }
+                }
             }
             .onChange(of: self.selectedImage) {
                 if let image = self.selectedImage {
