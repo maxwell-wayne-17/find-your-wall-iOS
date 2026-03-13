@@ -77,11 +77,73 @@ struct SpotSaveFormViewModelTests {
     func testClearImage() {
         let sut = self.defaultSut
         #expect(sut.imageData == nil)
-        
+
         sut.imageData = Data()
         #expect(sut.imageData != nil)
-        
+
         sut.clearImage()
         #expect(sut.imageData == nil)
+    }
+
+    @Test
+    func testNameIsEmptyWhenMapItemNameIsUnknownLocation() {
+        let mapItem = MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil)
+        mapItem.name = MKMapItem.unknownLocation
+
+        let sut = SpotSaveFormViewModel(mapItem: mapItem)
+
+        #expect(sut.name.isEmpty)
+    }
+
+    @Test
+    func testAddressIsEmptyWhenMapItemHasNoAddress() {
+        let sut = self.defaultSut
+
+        #expect(sut.address.isEmpty)
+    }
+
+    @Test
+    func testInitWithSpotUnknownNameIsCleared() {
+        let spot = LocalWallBallSpot(name: LocalWallBallSpot.unknownName, latitude: 123, longitude: 456)
+
+        let sut = SpotSaveFormViewModel(spot: spot)
+
+        #expect(sut.name.isEmpty)
+    }
+
+    @Test
+    func testInitWithSpotNilAddressIsEmpty() {
+        let spot = LocalWallBallSpot(name: "Test", latitude: 123, longitude: 456, address: nil)
+
+        let sut = SpotSaveFormViewModel(spot: spot)
+
+        #expect(sut.address.isEmpty)
+    }
+
+    @Test
+    func testInitWithSpotNilNoteIsEmpty() {
+        let spot = LocalWallBallSpot(name: "Test", latitude: 123, longitude: 456, note: nil)
+
+        let sut = SpotSaveFormViewModel(spot: spot)
+
+        #expect(sut.note.isEmpty)
+    }
+
+    @Test
+    func testInitWithSpotImageDataIsStored() {
+        let imageData = Data([0x01, 0x02])
+        let spot = LocalWallBallSpot(name: "Test", latitude: 123, longitude: 456, imageData: imageData)
+
+        let sut = SpotSaveFormViewModel(spot: spot)
+
+        #expect(sut.imageData == imageData)
+    }
+
+    @Test
+    func testIsFormValidReturnsFalseForWhitespaceOnlyName() {
+        let sut = self.defaultSut
+        sut.name = "   "
+
+        #expect(sut.isFormValid == false)
     }
 }

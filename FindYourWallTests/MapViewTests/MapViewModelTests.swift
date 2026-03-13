@@ -73,14 +73,29 @@ struct MapViewModelTests {
         let sut = MapViewModel()
         sut.userIsPlacingPin = userIsPlacingPin
         sut.selectedTag = tag
-    
+
         // When
         sut.selectedTagDidChange()
-        
+
         // Then
         let happyCase = !userIsPlacingPin && tag != nil
         #expect(sut.showMarkerSheet == happyCase)
         #expect((sut.selectedTag != nil) == happyCase)
+    }
+
+    @Test
+    func setUserPlacedLocationSetsCoordinates() throws {
+        // Given
+        let sut = MapViewModel()
+        let inputCoordinate = CLLocationCoordinate2D(latitude: 40.7128, longitude: -74.0060)
+
+        // When
+        sut.setUserPlacedLocation(at: inputCoordinate)
+
+        // Then
+        let placedItem = try #require(sut.userPlacedLocation)
+        #expect(placedItem.location.coordinate.latitude == inputCoordinate.latitude)
+        #expect(placedItem.location.coordinate.longitude == inputCoordinate.longitude)
     }
 
 }
