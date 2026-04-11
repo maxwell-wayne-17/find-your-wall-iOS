@@ -14,7 +14,6 @@ struct FindYourWallApp: App {
         WindowGroup {
             MapView()
         }
-        // TODO: Once we support viewing and deleting, we can store in persistent storage and not in memory
-        .modelContainer(for: LocalWallBallSpot.self, inMemory: true)
+        .modelContainer(for: LocalWallBallSpot.self, inMemory: false)
     }
 }
