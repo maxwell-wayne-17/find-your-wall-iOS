@@ -1,5 +1,5 @@
 //
-//  LocalWallBallSpotSheetView.swift
+//  WallBallSpotSheetView.swift
 //  FindYourWall
 //
 //  Created by Max Wayne on 1/8/26.
@@ -9,13 +9,13 @@ import SwiftUI
 import SwiftData
 import MapKit
 
-struct LocalWallBallSpotSheetView: View {
+struct WallBallSpotSheetView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showSaveForm = false
     @State private var showImagePreview = false
     
-    let spot: LocalWallBallSpot
+    let spot: WallBallSpot
     
     var body: some View {
         VStack(spacing: Constants.vstackSpacing) {
@@ -129,7 +129,7 @@ struct LocalWallBallSpotSheetView: View {
 }
 
 #Preview {
-    SheetPreviewHost(content: LocalWallBallSpotSheetView(spot: .init(name: "Name",
+    SheetPreviewHost(content: WallBallSpotSheetView(spot: .init(name: "Name",
                                                                      latitude: 123,
                                                                      longitude: 456,
                                                                      address: "123 Street St",

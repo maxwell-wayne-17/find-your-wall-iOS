@@ -164,7 +164,7 @@ struct SpotSaveFormView: View {
             spot.note = noteValue
             spot.imageData = self.viewModel.imageData
         } else {
-            let spot = LocalWallBallSpot(name: self.viewModel.name,
+            let spot = WallBallSpot(name: self.viewModel.name,
                                          latitude: self.viewModel.coordinate.latitude,
                                          longitude: self.viewModel.coordinate.longitude,
                                          address: self.viewModel.address,

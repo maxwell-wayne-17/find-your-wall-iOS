@@ -13,7 +13,7 @@ struct MapView: View {
     
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
     @Bindable private var viewModel = MapViewModel()
-    @Query private var localWallBallSpots: [LocalWallBallSpot]
+    @Query private var localWallBallSpots: [WallBallSpot]
     
     var body: some View {
         ZStack {
@@ -63,7 +63,7 @@ struct MapView: View {
                 }
                 .sheet(item: self.$viewModel.selectedLocalSpot,
                        onDismiss: { self.viewModel.selectedLocalSpot = nil }) { spot in
-                    LocalWallBallSpotSheetView(spot: spot)
+                    WallBallSpotSheetView(spot: spot)
                 }
                 .sheet(isPresented: self.$viewModel.showMarkerSheet,
                        onDismiss: {

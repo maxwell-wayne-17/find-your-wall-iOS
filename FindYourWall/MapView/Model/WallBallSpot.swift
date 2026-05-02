@@ -1,5 +1,5 @@
 //
-//  LocalWallBallSpot.swift
+//  WallBallSpot.swift
 //  FindYourWall
 //
 //  Created by Max Wayne on 12/17/25.
@@ -11,7 +11,7 @@ import SwiftData
 
 /// This class defines the model for wall ball spots the user has saved on their device.
 @Model
-class LocalWallBallSpot {
+class WallBallSpot {
     @Attribute(.unique)
     var id: UUID
 
@@ -51,6 +51,6 @@ class LocalWallBallSpot {
     }
 }
 
-extension LocalWallBallSpot {
+extension WallBallSpot {
     static let unknownName = "Unknown Spot"
 }

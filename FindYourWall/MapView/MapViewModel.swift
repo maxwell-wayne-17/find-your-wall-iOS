@@ -21,7 +21,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     var userPlacedLocation: MKMapItem?
     var userIsPlacingPin = false
     var showMarkerSheet = false
-    var selectedLocalSpot: LocalWallBallSpot?
+    var selectedLocalSpot: WallBallSpot?
     
     init(withLocationManager locationManager: CLLocationManager = .init()) {
         self.locationManager = locationManager

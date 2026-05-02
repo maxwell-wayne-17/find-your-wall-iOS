@@ -57,8 +57,8 @@ struct SpotSaveFormViewModelTests {
     }
     
     @Test
-    func testInitWithLocalWallBallSpot() {
-        let spot = LocalWallBallSpot(name: "Name",
+    func testInitWithWallBallSpot() {
+        let spot = WallBallSpot(name: "Name",
                                      latitude: 123,
                                      longitude: 456,
                                      address: "123 Street St",
@@ -104,7 +104,7 @@ struct SpotSaveFormViewModelTests {
 
     @Test
     func testInitWithSpotUnknownNameIsCleared() {
-        let spot = LocalWallBallSpot(name: LocalWallBallSpot.unknownName, latitude: 123, longitude: 456)
+        let spot = WallBallSpot(name: WallBallSpot.unknownName, latitude: 123, longitude: 456)
 
         let sut = SpotSaveFormViewModel(spot: spot)
 
@@ -113,7 +113,7 @@ struct SpotSaveFormViewModelTests {
 
     @Test
     func testInitWithSpotNilAddressIsEmpty() {
-        let spot = LocalWallBallSpot(name: "Test", latitude: 123, longitude: 456, address: nil)
+        let spot = WallBallSpot(name: "Test", latitude: 123, longitude: 456, address: nil)
 
         let sut = SpotSaveFormViewModel(spot: spot)
 
@@ -122,7 +122,7 @@ struct SpotSaveFormViewModelTests {
 
     @Test
     func testInitWithSpotNilNoteIsEmpty() {
-        let spot = LocalWallBallSpot(name: "Test", latitude: 123, longitude: 456, note: nil)
+        let spot = WallBallSpot(name: "Test", latitude: 123, longitude: 456, note: nil)
 
         let sut = SpotSaveFormViewModel(spot: spot)
 
@@ -132,7 +132,7 @@ struct SpotSaveFormViewModelTests {
     @Test
     func testInitWithSpotImageDataIsStored() {
         let imageData = Data([0x01, 0x02])
-        let spot = LocalWallBallSpot(name: "Test", latitude: 123, longitude: 456, imageData: imageData)
+        let spot = WallBallSpot(name: "Test", latitude: 123, longitude: 456, imageData: imageData)
 
         let sut = SpotSaveFormViewModel(spot: spot)
 

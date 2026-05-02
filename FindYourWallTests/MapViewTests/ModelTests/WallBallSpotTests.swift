@@ -1,5 +1,5 @@
 //
-//  LocalWallBallSpotTests.swift
+//  WallBallSpotTests.swift
 //  FindYourWallTests
 //
 //  Created by Max Wayne on 2/1/26.
@@ -9,7 +9,7 @@
 internal import MapKit
 import Testing
 
-struct LocalWallBallSpotTests {
+struct WallBallSpotTests {
     
     @MainActor
     @Test
@@ -21,7 +21,7 @@ struct LocalWallBallSpotTests {
         // Use a reverse geocoding request to get fully populated map items
         let mapItems = try #require(await request?.mapItems)
 
-        let spots = mapItems.map { LocalWallBallSpot(from: $0) }
+        let spots = mapItems.map { WallBallSpot(from: $0) }
         
         
         for (mapItem, spot) in zip(mapItems, spots) {

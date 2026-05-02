@@ -1,54 +1,32 @@
-# CLAUDE.md
+# FindYourWall iOS
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+An iOS app for finding and saving wall ball spots (lacrosse). Users can search for locations on a map, drop pins manually, and save spots with names, addresses, notes, and photos.
 
-## Commands
-
-All building, testing, and running is done through Xcode. Use `xcodebuild` from the command line when needed:
+## Build & Test
 
 ```bash
-# Build the app
-xcodebuild -project FindYourWall.xcodeproj -scheme FindYourWall -sdk iphonesimulator build
+# Build
+xcodebuild -scheme FindYourWall -destination 'platform=iOS Simulator,name=iPhone 16' build
 
-# Run all unit tests
-xcodebuild test -project FindYourWall.xcodeproj -scheme FindYourWall -destination 'platform=iOS Simulator,name=iPhone 16'
+# Run all tests
+xcodebuild -scheme FindYourWall -destination 'platform=iOS Simulator,name=iPhone 16' test
 
-# Run a single test file (e.g., SpotSaveFormViewModelTests)
-xcodebuild test -project FindYourWall.xcodeproj -scheme FindYourWall -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:FindYourWallTests/SpotSaveFormViewModelTests
+# Run a specific test suite
+xcodebuild -scheme FindYourWall -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:FindYourWallTests/MapViewModelTests
 ```
 
 ## Architecture
 
-**Find Your Wall** is a SwiftUI app for discovering and saving wall ball spots on a map. It uses MVVM with these frameworks:
-- **SwiftData** for persistence (`@Model`, `@Query`, `modelContainer`)
-- **MapKit + CoreLocation** for maps and location (`MKLocalSearch`, `CLLocationManager`)
-- **Swift Testing** (not XCTest) for all unit tests — use `@Suite`, `@Test`, `#expect()`
+- **SwiftUI + SwiftData** app targeting iOS
+- **MVVM** pattern: views have companion `ViewModel` classes using `@Observable`
+- **SwiftData** for persistence with `WallBallSpot` as the single `@Model` class
+- Model container is set at the app level (`FindYourWallApp.swift`) and injected via environment
+- Tests use Swift Testing framework (`@Test`, `#expect`, `@Suite`)
 
-### Data Flow
 
-`LocalWallBallSpot` is the sole SwiftData model. It is inserted into the model context in `FindYourWallApp` and queried via `@Query` in `MapView`. The model container is currently configured as **in-memory** (not persistent) — there's a known TODO to switch this.
+## Code Conventions
 
-### Navigation
-
-The app is a single-screen experience anchored in `MapView`. All sub-screens are sheets:
-- Tap a search result marker → `MarkerSheetView` → tap "Add" → `SpotSaveFormView` (init from `MKMapItem`)
-- Tap a saved spot marker → `LocalWallBallSpotSheetView` → tap "Edit" → `SpotSaveFormView` (init from `LocalWallBallSpot`)
-- Tap the FAB → pin-placement mode → tap the map → `MarkerSheetView`
-
-Sheet visibility is controlled by boolean `@State` flags on `MapView` (`showMarkerSheet`, `showLocalSpotSheet`). Marker selection uses integer tags on `MapViewModel.selectedTag`; tag `-1` is reserved for user-placed pins.
-
-### Key Files
-
-| File | Role |
-|------|------|
-| `FindYourWall/MapView/MapViewModel.swift` | Location management, map camera, MKLocalSearch, marker selection |
-| `FindYourWall/MapView/Model/LocalWallBallSpot.swift` | SwiftData model; includes `init(from: MKMapItem)` |
-| `FindYourWall/SaveForm/SpotSaveFormViewModel.swift` | Form state, ZIP filtering (5 digits), validation |
-| `FindYourWall/UIHelpers/PrimaryButtonStyle.swift` | Shared button style (blue, rounded, grayscale when disabled) |
-
-### Conventions
-
-- ViewModels use the `@Observable` macro (not `ObservableObject`/`@Published`)
-- Views reference ViewModels with `@Bindable` (not `@ObservedObject`)
-- `SpotSaveFormViewModel` has two inits: `init(mapItem:)` and `init(spot:)` for create vs. edit flows
-- The ZIP code setter filters input to exactly 5 numeric characters via `willSet`
+- Use `self.` explicitly for all property/method access
+- Constants live in private nested `Constants` structs within each type
+- Mark sections with `// MARK: -` comments
+- Button styles use the `.primaryAction()` extension pattern

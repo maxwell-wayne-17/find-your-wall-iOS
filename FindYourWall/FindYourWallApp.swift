@@ -14,6 +14,6 @@ struct FindYourWallApp: App {
         WindowGroup {
             MapView()
         }
-        .modelContainer(for: LocalWallBallSpot.self, inMemory: false)
+        .modelContainer(for: WallBallSpot.self, inMemory: false)
     }
 }
