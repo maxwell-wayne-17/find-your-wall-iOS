@@ -30,7 +30,7 @@ struct MapView: View {
                         Annotation("", coordinate: spot.cLCoordinate, anchor: .bottom) {
                             Text("🥍")
                                 .font(.system(size: Constants.laxEmojiFontSize))
-                                .padding(7)
+                                .padding(Constants.laxEmojiPadding)
                                 .background(.blue.gradient, in: .circle)
                                 .onTapGesture {
                                     self.viewModel.selectedLocalSpot = spot
@@ -156,7 +156,8 @@ struct MapView: View {
     
     private struct Constants {
         
-        static let laxEmojiFontSize: CGFloat = 18
+        static let laxEmojiFontSize: CGFloat = 12
+        static let laxEmojiPadding: CGFloat = 7
         
         static let searchCancelIcon = "xmark.circle.fill"
         static let searchCancelIconOffset: CGFloat = -5
