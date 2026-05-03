@@ -171,6 +171,9 @@ struct SpotSaveFormView: View {
                                          note: noteValue,
                                          imageData: self.viewModel.imageData)
             self.modelContext.insert(spot)
+            if modelContext.hasChanges {
+                try? modelContext.save()
+            }
         }
     }
     

@@ -11,7 +11,7 @@ import SwiftData
 
 /// This class defines the model for wall ball spots the user has saved on their device.
 @Model
-class WallBallSpot {
+class WallBallSpot: Identifiable {
     
     var id: UUID = UUID()
 
