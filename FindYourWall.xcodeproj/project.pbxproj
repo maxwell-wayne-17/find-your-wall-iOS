@@ -29,9 +29,22 @@
 		08E743F92EC8DEA100D47785 /* FindYourWallUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FindYourWallUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		082E76E32FA7FD1A004DCBF6 /* Exceptions for "FindYourWall" folder in "FindYourWall" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 08E743E12EC8DE9F00D47785 /* FindYourWall */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		08E743E42EC8DE9F00D47785 /* FindYourWall */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				082E76E32FA7FD1A004DCBF6 /* Exceptions for "FindYourWall" folder in "FindYourWall" target */,
+			);
 			path = FindYourWall;
 			sourceTree = "<group>";
 		};
@@ -403,6 +416,7 @@
 				DEVELOPMENT_TEAM = 2528VB729X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FindYourWall/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Permission required to take photos with camera";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Enable location services to show your location on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -441,6 +455,7 @@
 				DEVELOPMENT_TEAM = 2528VB729X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FindYourWall/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Permission required to take photos with camera";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Enable location services to show your location on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -12,13 +12,14 @@ import SwiftData
 /// This class defines the model for wall ball spots the user has saved on their device.
 @Model
 class WallBallSpot {
-    @Attribute(.unique)
-    var id: UUID
-
-    var name: String
     
-    var latitude: Double
-    var longitude: Double
+    var id: UUID = UUID()
+
+    var name: String = WallBallSpot.unknownName
+    
+    // Defaults to US lacrosse headquarters for cloudkit compatability.
+    var latitude: Double = 39.521344
+    var longitude: Double = -76.645220
     var cLCoordinate: CLLocationCoordinate2D {
         .init(latitude: self.latitude, longitude: self.longitude)
     }
@@ -33,7 +34,6 @@ class WallBallSpot {
          address: String? = nil,
          note: String? = nil,
          imageData: Data? = nil) {
-        self.id = UUID()
         self.name = name
         self.latitude = latitude
         self.longitude = longitude
@@ -43,7 +43,6 @@ class WallBallSpot {
     }
 
     init(from item: MKMapItem) {
-        self.id = UUID()
         self.name = item.name ?? Self.unknownName
         self.latitude = item.location.coordinate.latitude
         self.longitude = item.location.coordinate.longitude
