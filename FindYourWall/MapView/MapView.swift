@@ -13,7 +13,9 @@ struct MapView: View {
     
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
     @Bindable private var viewModel = MapViewModel()
-    @Query private var localWallBallSpots: [WallBallSpot]
+    
+    // Eventually we should only query for spots that are within the map's span.
+    @Query private var wallBallSpots: [WallBallSpot]
     
     var body: some View {
         ZStack {
@@ -26,7 +28,7 @@ struct MapView: View {
                             .tag(MapViewModel.Constants.userPlacedLocationTag)
                     }
                     
-                    ForEach(self.localWallBallSpots) { spot in
+                    ForEach(self.wallBallSpots) { spot in
                         Annotation("", coordinate: spot.cLCoordinate, anchor: .bottom) {
                             Text("🥍")
                                 .font(.system(size: Constants.laxEmojiFontSize))
