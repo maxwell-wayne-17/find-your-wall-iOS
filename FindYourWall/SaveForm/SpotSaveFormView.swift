@@ -177,7 +177,8 @@ struct SpotSaveFormView: View {
                                 note: noteValue,
                                 imageData: self.viewModel.imageData)
         }
-
+        
+        // TODO: Update the save-loading UI to be more explicit
         self.isSaving = true
         Task {
             do {
