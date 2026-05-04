@@ -12,6 +12,8 @@ struct MarkerSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showSaveForm = false
     let mapItem: MKMapItem
+    let spotService: SpotService
+    var onSave: () async -> Void
     
     var body: some View {
         VStack(spacing: Constants.markerSheetSpacing) {
@@ -42,7 +44,9 @@ struct MarkerSheetView: View {
         .presentationDetents([Constants.markerSheetDetentHeight])
         .sheet(isPresented: self.$showSaveForm,
                onDismiss: { self.dismiss() }) {
-            SpotSaveFormView(viewModel: .init(mapItem: self.mapItem))
+            SpotSaveFormView(viewModel: .init(mapItem: self.mapItem),
+                             spotService: self.spotService,
+                             onSave: self.onSave)
         }
     }
     
@@ -55,7 +59,9 @@ struct MarkerSheetView: View {
 }
 
 #Preview {
-    SheetPreviewHost(content: MarkerSheetView(mapItem: .init()))
+    SheetPreviewHost(content: MarkerSheetView(mapItem: .init(),
+                                              spotService: CloudKitSpotService(),
+                                              onSave: {}))
 }
 
 extension CLLocationCoordinate2D {

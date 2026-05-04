@@ -7,29 +7,33 @@
 
 import SwiftUI
 import MapKit
-import SwiftData
 import PhotosUI
 
 struct SpotSaveFormView: View {
-    
-    @Environment(\.modelContext) var modelContext
+
     @Environment(\.dismiss) private var dismiss
-    
+
     @Bindable private var viewModel: SpotSaveFormViewModel
-    
+
+    private let spotService: SpotService
+    private var onSave: () async -> Void
+
     private enum FocusedField {
         case name, address, note
     }
     @FocusState private var focusedField: FocusedField?
-    
+
     @State private var photosPickerItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showImageSourceSheet = false
     @State private var cameraError: CameraPermission.CameraError?
     @State private var selectedImage: UIImage?
-    
-    init(viewModel: SpotSaveFormViewModel) {
+    @State private var isSaving = false
+
+    init(viewModel: SpotSaveFormViewModel, spotService: SpotService, onSave: @escaping () async -> Void) {
         self.viewModel = viewModel
+        self.spotService = spotService
+        self.onSave = onSave
     }
     
     var body: some View {
@@ -130,10 +134,9 @@ struct SpotSaveFormView: View {
                     Button("Save") {
                         if self.viewModel.isFormValid {
                             self.saveWallBallSpot()
-                            self.dismiss()
                         }
                     }
-                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil)
+                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil || self.isSaving)
                     .buttonStyle(.primaryAction())
                 }
                 // Ignoring the keyboard overlay wasn't working,
@@ -158,21 +161,33 @@ struct SpotSaveFormView: View {
     
     private func saveWallBallSpot() {
         let noteValue: String? = self.viewModel.note.isEmpty ? nil : self.viewModel.note
-        if let spot = self.viewModel.existingSpot {
-            spot.name = self.viewModel.name
-            spot.address = self.viewModel.address
-            spot.note = noteValue
-            spot.imageData = self.viewModel.imageData
+
+        var spot: WallBallSpot
+        if var existingSpot = self.viewModel.existingSpot {
+            existingSpot.name = self.viewModel.name
+            existingSpot.address = self.viewModel.address
+            existingSpot.note = noteValue
+            existingSpot.imageData = self.viewModel.imageData
+            spot = existingSpot
         } else {
-            let spot = WallBallSpot(name: self.viewModel.name,
-                                         latitude: self.viewModel.coordinate.latitude,
-                                         longitude: self.viewModel.coordinate.longitude,
-                                         address: self.viewModel.address,
-                                         note: noteValue,
-                                         imageData: self.viewModel.imageData)
-            self.modelContext.insert(spot)
-            if modelContext.hasChanges {
-                try? modelContext.save()
+            spot = WallBallSpot(name: self.viewModel.name,
+                                latitude: self.viewModel.coordinate.latitude,
+                                longitude: self.viewModel.coordinate.longitude,
+                                address: self.viewModel.address,
+                                note: noteValue,
+                                imageData: self.viewModel.imageData)
+        }
+
+        self.isSaving = true
+        Task {
+            do {
+                let _ = try await self.spotService.saveSpot(spot)
+                // TODO: The map is not displaying the spot on save. We should try to retrieve the individual record and add it to the map view model
+                await self.onSave()
+                await MainActor.run { self.dismiss() }
+            } catch {
+                print("CloudKit save failed: \(error)")
+                await MainActor.run { self.isSaving = false }
             }
         }
     }
@@ -186,6 +201,6 @@ struct SpotSaveFormView: View {
 
 #Preview {
     let viewModel = SpotSaveFormViewModel(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
-    SpotSaveFormView(viewModel: viewModel)
+    SpotSaveFormView(viewModel: viewModel, spotService: CloudKitSpotService(), onSave: {})
         .preferredColorScheme(.dark)
 }

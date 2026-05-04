@@ -13,17 +13,20 @@ import _MapKit_SwiftUI
 @Observable
 class MapViewModel: NSObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager
-    
+    private let spotService: SpotService
+
     var cameraPosition: MapCameraPosition = .region(.init(center: .empowerStadium, span: Constants.defaultSpan))
-       
-    var mapSearchResults: [MKMapItem] = []    
+
+    var mapSearchResults: [MKMapItem] = []
     var selectedTag: Int?
     var userPlacedLocation: MKMapItem?
     var userIsPlacingPin = false
     var showMarkerSheet = false
     var selectedLocalSpot: WallBallSpot?
-    
-    init(withLocationManager locationManager: CLLocationManager = .init()) {
+    var spots: [WallBallSpot] = []
+
+    init(spotService: SpotService, locationManager: CLLocationManager = .init()) {
+        self.spotService = spotService
         self.locationManager = locationManager
         super.init()
         self.locationManager.delegate = self
@@ -78,6 +81,17 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         )
     }
     
+    // MARK: - Spots
+
+    @MainActor
+    func fetchSpots() async {
+        do {
+            self.spots = try await self.spotService.fetchAllSpots()
+        } catch {
+            print("Failed to fetch spots: \(error)")
+        }
+    }
+
     // MARK: - CLLocationManagerDelegate
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
