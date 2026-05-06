@@ -16,7 +16,6 @@ struct SpotSaveFormView: View {
     @Bindable private var viewModel: SpotSaveFormViewModel
 
     private let spotService: SpotService
-    private var onSave: () async -> Void
 
     private enum FocusedField {
         case name, address, note
@@ -30,10 +29,9 @@ struct SpotSaveFormView: View {
     @State private var selectedImage: UIImage?
     @State private var isSaving = false
 
-    init(viewModel: SpotSaveFormViewModel, spotService: SpotService, onSave: @escaping () async -> Void) {
+    init(viewModel: SpotSaveFormViewModel, spotService: SpotService) {
         self.viewModel = viewModel
         self.spotService = spotService
-        self.onSave = onSave
     }
 
     var body: some View {
@@ -193,8 +191,6 @@ struct SpotSaveFormView: View {
         Task {
             do {
                 let _ = try await self.spotService.saveSpot(spot)
-                // TODO: The map is not displaying the spot on save. We should try to retrieve the individual record and add it to the map view model
-                await self.onSave()
                 await MainActor.run { self.dismiss() }
             } catch {
                 print("CloudKit save failed: \(error)")
@@ -212,6 +208,6 @@ struct SpotSaveFormView: View {
 
 #Preview {
     let viewModel = SpotSaveFormViewModel(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
-    SpotSaveFormView(viewModel: viewModel, spotService: CloudKitSpotService(), onSave: {})
+    SpotSaveFormView(viewModel: viewModel, spotService: CloudKitSpotService())
         .preferredColorScheme(.dark)
 }

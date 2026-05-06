@@ -69,9 +69,7 @@ struct MapView: View {
                 .sheet(item: self.$viewModel.selectedLocalSpot,
                        onDismiss: { self.viewModel.selectedLocalSpot = nil }) { spot in
                     WallBallSpotSheetView(spot: spot,
-                                          spotService: self.spotService,
-                                          onDelete: { await self.viewModel.fetchSpots() },
-                                          onSave: { await self.viewModel.fetchSpots() })
+                                          spotService: self.spotService)
                 }
                 .sheet(isPresented: self.$viewModel.showMarkerSheet,
                        onDismiss: {
@@ -79,8 +77,7 @@ struct MapView: View {
                 }) {
                     if let mapItem = self.viewModel.getSelectedLocation()  {
                         MarkerSheetView(mapItem: mapItem,
-                                        spotService: self.spotService,
-                                        onSave: { await self.viewModel.fetchSpots() })
+                                        spotService: self.spotService)
                     } else {
                         Text("Error: Invalid location selected")
                             .presentationDetents([Constants.errorSheetDetents])

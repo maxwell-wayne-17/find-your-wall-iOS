@@ -15,8 +15,6 @@ struct WallBallSpotSheetView: View {
 
     let spot: WallBallSpot
     let spotService: SpotService
-    var onDelete: () async -> Void
-    var onSave: () async -> Void
     
     var body: some View {
         VStack(spacing: Constants.vstackSpacing) {
@@ -94,8 +92,7 @@ struct WallBallSpotSheetView: View {
         .presentationDetents([self.getDetents()])
         .sheet(isPresented: self.$showSaveForm) {
             SpotSaveFormView(viewModel: .init(spot: self.spot),
-                             spotService: self.spotService,
-                             onSave: self.onSave)
+                             spotService: self.spotService)
         }
         .fullScreenCover(isPresented: $showImagePreview) {
             if let data = spot.imageData, let uiImage = UIImage(data: data) {
@@ -118,7 +115,6 @@ struct WallBallSpotSheetView: View {
         Task {
             do {
                 try await self.spotService.deleteSpot(recordName: recordName)
-                await self.onDelete()
             } catch {
                 print("CloudKit delete failed: \(error)")
             }
@@ -145,7 +141,5 @@ struct WallBallSpotSheetView: View {
                                                                      longitude: 456,
                                                                      address: "123 Street St",
                                                                      note: "Show up to the building and turn left. Use the wall on the right."),
-                                                    spotService: CloudKitSpotService(),
-                                                    onDelete: {},
-                                                    onSave: {}))
+                                                    spotService: CloudKitSpotService()))
 }

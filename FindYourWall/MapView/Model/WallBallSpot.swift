@@ -65,3 +65,8 @@ struct WallBallSpot: Identifiable {
 extension WallBallSpot {
     static let unknownName = "Unknown Spot"
 }
+
+extension Notification.Name {
+    static let wallBallSpotDidSave = Notification.Name("wallBallSpotDidSave")
+    static let wallBallSpotDidDelete = Notification.Name("wallBallSpotDidDelete")
+}

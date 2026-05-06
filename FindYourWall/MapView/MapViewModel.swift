@@ -5,8 +5,9 @@
 //  Created by Max Wayne on 11/16/25.
 //
 
-import Foundation
+import Combine
 import CoreLocation
+import Foundation
 import MapKit
 import _MapKit_SwiftUI
 
@@ -14,6 +15,7 @@ import _MapKit_SwiftUI
 class MapViewModel: NSObject, CLLocationManagerDelegate {
     private var locationManager: CLLocationManager
     private let spotService: SpotService
+    private var cancellables = Set<AnyCancellable>()
 
     var cameraPosition: MapCameraPosition = .region(.init(center: .empowerStadium, span: Constants.defaultSpan))
 
@@ -33,6 +35,27 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.startMonitoringSignificantLocationChanges()
         self.setCameraPosition(for: locationManager.location)
+
+        NotificationCenter.default.publisher(for: .wallBallSpotDidSave)
+            .compactMap { $0.object as? WallBallSpot }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] savedSpot in
+                guard let self else { return }
+                if let idx = self.spots.firstIndex(where: { $0.id == savedSpot.id }) {
+                    self.spots[idx] = savedSpot
+                } else {
+                    self.spots.append(savedSpot)
+                }
+            }
+            .store(in: &self.cancellables)
+
+        NotificationCenter.default.publisher(for: .wallBallSpotDidDelete)
+            .compactMap { $0.object as? String }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] recordName in
+                self?.spots.removeAll { $0.recordName == recordName }
+            }
+            .store(in: &self.cancellables)
     }
     
     deinit {

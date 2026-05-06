@@ -49,11 +49,15 @@ final class CloudKitSpotService: SpotService {
             record["image"] = CKAsset(fileURL: tempURL)
             let savedRecord = try await self.publicDB.save(record)
             try? FileManager.default.removeItem(at: tempURL)
-            return WallBallSpot(from: savedRecord)
+            let savedSpot = WallBallSpot(from: savedRecord)
+            NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
+            return savedSpot
         }
 
         let savedRecord = try await self.publicDB.save(record)
-        return WallBallSpot(from: savedRecord)
+        let savedSpot = WallBallSpot(from: savedRecord)
+        NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
+        return savedSpot
     }
 
     func fetchAllSpots() async throws -> [WallBallSpot] {
@@ -65,5 +69,6 @@ final class CloudKitSpotService: SpotService {
     func deleteSpot(recordName: String) async throws {
         let recordID = CKRecord.ID(recordName: recordName)
         try await self.publicDB.deleteRecord(withID: recordID)
+        NotificationCenter.default.post(name: .wallBallSpotDidDelete, object: recordName)
     }
 }
