@@ -35,16 +35,16 @@ struct SpotSaveFormView: View {
         self.spotService = spotService
         self.onSave = onSave
     }
-    
+
     var body: some View {
-        
+
         NavigationView {
             Form {
                 Section {
                     TextField("Name (Required)", text: self.$viewModel.name)
                         .focused(self.$focusedField, equals: .name)
                 }
-                
+
                 Section(header: Text("Address (Optional)")) {
                     TextEditor(text: self.$viewModel.address)
                         .focused(self.$focusedField, equals: .address)
@@ -69,7 +69,7 @@ struct SpotSaveFormView: View {
                             .onTapGesture { self.showImageSourceSheet = true }
                     } else {
                         HStack(alignment: .center) {
-                            
+
                             Button("Camera", systemImage: "camera") {
                                 if let error = CameraPermission.checkPermissions() {
                                     self.cameraError = error
@@ -78,7 +78,7 @@ struct SpotSaveFormView: View {
                                 }
                             }
                             .alert(isPresented: .constant(self.cameraError != nil),
-                                   error: self.cameraError) { _ in 
+                                   error: self.cameraError) { _ in
                                 Button("OK") {
                                     self.cameraError = nil
                                 }
@@ -89,9 +89,9 @@ struct SpotSaveFormView: View {
                                 UIKitCamera(selectedImage: self.$selectedImage)
                                     .ignoresSafeArea()
                             }
-                            
+
                             Spacer()
-                            
+
                             PhotosPicker(selection: self.$photosPickerItem) {
                                 Label("Photos", systemImage: "photo")
                             }
@@ -99,7 +99,7 @@ struct SpotSaveFormView: View {
                             .buttonStyle(.borderless)
                         }
                     }
-                    
+
                     if let data = self.viewModel.imageData, let _ = UIImage(data: data) {
                         HStack {
                             Spacer()
@@ -124,13 +124,13 @@ struct SpotSaveFormView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                
+
                 HStack {
                     Button("Cancel") {
                         self.dismiss()
                     }
                     .buttonStyle(.primaryAction())
-                    
+
                     Button("Save") {
                         if self.viewModel.isFormValid {
                             self.saveWallBallSpot()
@@ -157,8 +157,19 @@ struct SpotSaveFormView: View {
                 }
             }
         }
+        .overlay {
+            if self.isSaving {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .tint(.white)
+                        .scaleEffect(1.5)
+                }
+            }
+        }
     }
-    
+
     private func saveWallBallSpot() {
         let noteValue: String? = self.viewModel.note.isEmpty ? nil : self.viewModel.note
 
@@ -177,8 +188,7 @@ struct SpotSaveFormView: View {
                                 note: noteValue,
                                 imageData: self.viewModel.imageData)
         }
-        
-        // TODO: Update the save-loading UI to be more explicit
+
         self.isSaving = true
         Task {
             do {
@@ -192,7 +202,7 @@ struct SpotSaveFormView: View {
             }
         }
     }
-    
+
     private struct Constants {
         static let keyboardDismissIcon = "keyboard.chevron.compact.down"
         static let compressionQuality = 0.8
