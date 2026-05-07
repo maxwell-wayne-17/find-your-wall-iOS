@@ -61,30 +61,33 @@ struct WallBallSpotSheetView: View {
             
 
             VStack(spacing: Constants.buttonVstackSpacing) {
+                
+                if spot.isOwnedByCurrentUser {
+                    HStack {
+
+                        Button {
+                            self.deleteSpot()
+                            self.dismiss()
+                        } label: {
+                            Text("Delete")
+                        }
+                        .buttonStyle(.primaryAction(.red))
+
+                        Button {
+                            self.showSaveForm = true
+                        } label: {
+                            Text("Edit")
+                        }
+                        .buttonStyle(.primaryAction())
+                    }
+                }
+                
                 Button {
                     self.openInMaps()
                 } label: {
                     Text("GO ➡️")
                 }
                 .buttonStyle(.primaryAction(.green))
-                
-                HStack {
-                    
-                    Button {
-                        self.deleteSpot()
-                        self.dismiss()
-                    } label: {
-                        Text("Delete")
-                    }
-                    .buttonStyle(.primaryAction(.red))
-                    
-                    Button {
-                        self.showSaveForm = true
-                    } label: {
-                        Text("Edit")
-                    }
-                    .buttonStyle(.primaryAction())
-                }
             }
         }
         .padding()

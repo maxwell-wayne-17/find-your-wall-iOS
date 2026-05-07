@@ -27,6 +27,14 @@ struct WallBallSpot: Identifiable {
     /// The CloudKit record name, used for updates and deletes.
     var recordName: String?
 
+    /// The CloudKit record name of the user who created this spot.
+    var creatorRecordName: String?
+    
+    /// If the CloudKit creatorRecordName of this spot is equal to the default name, then the current user created this spot.
+    var isOwnedByCurrentUser: Bool {
+        self.creatorRecordName == CKCurrentUserDefaultName
+    }
+
     init(name: String,
          latitude: Double,
          longitude: Double,
@@ -51,6 +59,7 @@ struct WallBallSpot: Identifiable {
     init(from record: CKRecord) {
         self.id = UUID(uuidString: record["spotID"] as? String ?? "") ?? UUID()
         self.recordName = record.recordID.recordName
+        self.creatorRecordName = record.creatorUserRecordID?.recordName
         self.name = record["name"] as? String ?? Self.unknownName
         self.latitude = record["latitude"] as? Double ?? 0
         self.longitude = record["longitude"] as? Double ?? 0

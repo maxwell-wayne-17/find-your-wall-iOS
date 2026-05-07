@@ -23,6 +23,7 @@ struct MapView: View {
     var body: some View {
         ZStack {
             MapReader { proxy in
+
                 Map(position: self.$viewModel.cameraPosition, selection: self.$viewModel.selectedTag) {
                     UserAnnotation()
                     
@@ -33,10 +34,11 @@ struct MapView: View {
                     
                     ForEach(self.viewModel.spots) { spot in
                         Annotation("", coordinate: spot.cLCoordinate, anchor: .bottom) {
+                            let backgroundColor: Color = spot.isOwnedByCurrentUser ? .green : .blue
                             Text("🥍")
                                 .font(.system(size: Constants.laxEmojiFontSize))
                                 .padding(Constants.laxEmojiPadding)
-                                .background(.blue.gradient, in: .circle)
+                                .background(backgroundColor.gradient, in: .circle)
                                 .onTapGesture {
                                     self.viewModel.selectedLocalSpot = spot
                                 }
