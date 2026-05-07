@@ -100,10 +100,6 @@ struct MapView: View {
                     .padding(.trailing)
                     .padding(.bottom, Constants.fabBottomPaddings)
                 }
-//                .overlay(alignment: .bottomLeading) {
-//                    self.refreshFab
-//                        .padding(.bottom, Constants.fabBottomPaddings)
-//                }
             }
             
             VStack {
