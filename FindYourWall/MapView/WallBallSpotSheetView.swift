@@ -10,28 +10,28 @@ import MapKit
 
 struct WallBallSpotSheetView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var showSaveForm = false
-    @State private var showImagePreview = false
+    @State private var viewModel: WallBallSpotSheetViewModel
 
-    let spot: WallBallSpot
-    let spotService: SpotService
-    
+    init(spot: WallBallSpot, spotService: SpotService) {
+        self._viewModel = State(wrappedValue: WallBallSpotSheetViewModel(spot: spot, spotService: spotService))
+    }
+
     var body: some View {
         VStack(spacing: Constants.vstackSpacing) {
-            
-            Text(spot.name)
+
+            Text(viewModel.spot.name)
                 .font(.title3)
                 .fontWeight(.semibold)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.top])
-            
-            Text(spot.address ?? "\(spot.cLCoordinate)")
+
+            Text(viewModel.spot.address ?? "\(viewModel.spot.cLCoordinate)")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if let note = spot.note, !note.isEmpty {
+            if let note = viewModel.spot.note, !note.isEmpty {
                 ScrollView {
                     Text(note)
                         .font(.body)
@@ -43,11 +43,11 @@ struct WallBallSpotSheetView: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(8)
             }
-            
+
             Spacer()
 
-            if let data = spot.imageData, let uiImage = UIImage(data: data) {
-                Button { showImagePreview = true } label: {
+            if let data = viewModel.spot.imageData, let uiImage = UIImage(data: data) {
+                Button { viewModel.showImagePreview = true } label: {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
@@ -58,15 +58,15 @@ struct WallBallSpotSheetView: View {
                 .buttonStyle(.plain)
                 .contentShape(Rectangle()) // This is required, otherwise the tappable area includes the portion of the image that got clipped.
             }
-            
+
 
             VStack(spacing: Constants.buttonVstackSpacing) {
-                
-                if spot.isOwnedByCurrentUser {
+
+                if viewModel.spot.isOwnedByCurrentUser {
                     HStack {
 
                         Button {
-                            self.deleteSpot()
+                            self.viewModel.deleteSpot()
                             self.dismiss()
                         } label: {
                             Text("Delete")
@@ -74,16 +74,16 @@ struct WallBallSpotSheetView: View {
                         .buttonStyle(.primaryAction(.red))
 
                         Button {
-                            self.showSaveForm = true
+                            self.viewModel.showSaveForm = true
                         } label: {
                             Text("Edit")
                         }
                         .buttonStyle(.primaryAction())
                     }
                 }
-                
+
                 Button {
-                    self.openInMaps()
+                    self.viewModel.openInMaps()
                 } label: {
                     Text("GO ➡️")
                 }
@@ -93,43 +93,23 @@ struct WallBallSpotSheetView: View {
         .padding()
         .padding([.top], Constants.vstackSpacing)
         .presentationDetents([self.getDetents()])
-        .sheet(isPresented: self.$showSaveForm) {
-            SpotSaveFormView(viewModel: .init(spot: self.spot),
-                             spotService: self.spotService)
+        .sheet(isPresented: self.$viewModel.showSaveForm) {
+            SpotSaveFormView(viewModel: .init(spot: self.viewModel.spot),
+                             spotService: self.viewModel.spotService)
         }
-        .fullScreenCover(isPresented: $showImagePreview) {
-            if let data = spot.imageData, let uiImage = UIImage(data: data) {
+        .fullScreenCover(isPresented: $viewModel.showImagePreview) {
+            if let data = viewModel.spot.imageData, let uiImage = UIImage(data: data) {
                 ImagePreviewView(uiImage: uiImage)
             }
         }
     }
-    
-    private func openInMaps() {
-        let mapItem = MKMapItem(location: .init(latitude: spot.latitude,
-                                                longitude: spot.longitude),
-                                address: nil)
-        mapItem.openInMaps(launchOptions: [
-            MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
-        ])
-    }
 
-    private func deleteSpot() {
-        guard let recordName = self.spot.recordName else { return }
-        Task {
-            do {
-                try await self.spotService.deleteSpot(recordName: recordName)
-            } catch {
-                print("CloudKit delete failed: \(error)")
-            }
-        }
-    }
-    
     private func getDetents() -> PresentationDetent {
-        if spot.imageData != nil { return .large }
-        if !(spot.note ?? "").isEmpty { return Constants.detentsWithNote }
+        if self.viewModel.spot.imageData != nil { return .large }
+        if !(self.viewModel.spot.note ?? "").isEmpty { return Constants.detentsWithNote }
         return Constants.detentsWithoutNoteOrImage
     }
-
+    
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
