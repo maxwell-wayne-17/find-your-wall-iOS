@@ -92,9 +92,18 @@ struct MapView: View {
                     await self.viewModel.fetchSpots()
                 }
                 .overlay(alignment: .bottomTrailing) {
-                    self.placePinFab
-                        .padding(.bottom, Constants.fabBottomPaddings)
+                    VStack {
+                        self.refreshFab
+                        self.placePinFab
+                    }
+                    
+                    .padding(.trailing)
+                    .padding(.bottom, Constants.fabBottomPaddings)
                 }
+//                .overlay(alignment: .bottomLeading) {
+//                    self.refreshFab
+//                        .padding(.bottom, Constants.fabBottomPaddings)
+//                }
             }
             
             VStack {
@@ -161,9 +170,25 @@ struct MapView: View {
                     .frame(width: Constants.fabEdgeSize, height: Constants.fabEdgeSize)
                     .rotationEffect(.degrees(self.viewModel.userIsPlacingPin ? 45 : 0))
             }
-            .padding(.trailing)
     }
     
+    // MARK: - Refresh Floating Action Button
+
+    private var refreshFab: some View {
+        Button(action: {
+            self.searchText = ""
+            self.viewModel.mapSearchResults = []
+            Task {
+                await self.viewModel.fetchSpots()
+            }
+        }) {
+            Image(systemName: Constants.refreshFabIconName)
+                .resizable()
+                .foregroundStyle(Color.blue)
+                .frame(width: Constants.fabEdgeSize, height: Constants.fabEdgeSize)
+        }
+    }
+
     // MARK: - Constants
     
     private struct Constants {
@@ -177,6 +202,7 @@ struct MapView: View {
         static let errorSheetDetents: PresentationDetent = .height(50)
         
         static let fabIconName = "plus.circle.fill"
+        static let refreshFabIconName = "arrow.clockwise.circle.fill"
         static let fabEdgeSize: CGFloat = 60
         static let fabBottomPaddings: CGFloat = 60
     }
