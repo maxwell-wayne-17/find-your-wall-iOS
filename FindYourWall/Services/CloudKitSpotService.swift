@@ -41,6 +41,7 @@ final class CloudKitSpotService: SpotService {
         record["longitude"] = spot.longitude
         record["address"] = spot.address
         record["note"] = spot.note
+        record["image"] = nil
 
         if let imageData = spot.imageData {
             let tempURL = FileManager.default.temporaryDirectory
