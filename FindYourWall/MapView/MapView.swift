@@ -92,7 +92,7 @@ struct MapView: View {
                     await self.viewModel.fetchSpots()
                 }
                 .overlay(alignment: .bottomTrailing) {
-                    self.fab
+                    self.placePinFab
                         .padding(.bottom, Constants.fabBottomPaddings)
                 }
             }
@@ -143,9 +143,9 @@ struct MapView: View {
         .padding()
     }
     
-    // MARK: - Floating Action Button
+    // MARK: - Place Pin Floating Action Button
     
-    private var fab: some View {
+    private var placePinFab: some View {
             Button(action: {
                 withAnimation {
                     self.viewModel.userIsPlacingPin.toggle()
