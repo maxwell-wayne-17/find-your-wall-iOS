@@ -6,16 +6,15 @@
 //
 
 import SwiftUI
-import SwiftData
 import MapKit
 
 struct WallBallSpotSheetView: View {
-    @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showSaveForm = false
     @State private var showImagePreview = false
-    
+
     let spot: WallBallSpot
+    let spotService: SpotService
     
     var body: some View {
         VStack(spacing: Constants.vstackSpacing) {
@@ -92,7 +91,8 @@ struct WallBallSpotSheetView: View {
         .padding([.top], Constants.vstackSpacing)
         .presentationDetents([self.getDetents()])
         .sheet(isPresented: self.$showSaveForm) {
-            SpotSaveFormView(viewModel: .init(spot: self.spot))
+            SpotSaveFormView(viewModel: .init(spot: self.spot),
+                             spotService: self.spotService)
         }
         .fullScreenCover(isPresented: $showImagePreview) {
             if let data = spot.imageData, let uiImage = UIImage(data: data) {
@@ -111,7 +111,14 @@ struct WallBallSpotSheetView: View {
     }
 
     private func deleteSpot() {
-        self.modelContext.delete(self.spot)
+        guard let recordName = self.spot.recordName else { return }
+        Task {
+            do {
+                try await self.spotService.deleteSpot(recordName: recordName)
+            } catch {
+                print("CloudKit delete failed: \(error)")
+            }
+        }
     }
     
     private func getDetents() -> PresentationDetent {
@@ -133,5 +140,6 @@ struct WallBallSpotSheetView: View {
                                                                      latitude: 123,
                                                                      longitude: 456,
                                                                      address: "123 Street St",
-                                                                     note: "Show up to the building and turn left. Use the wall on the right.")))
+                                                                     note: "Show up to the building and turn left. Use the wall on the right."),
+                                                    spotService: CloudKitSpotService()))
 }

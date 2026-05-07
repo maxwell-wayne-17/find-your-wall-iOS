@@ -5,15 +5,16 @@
 //  Created by Max Wayne on 11/15/25.
 //
 
-import SwiftData
 import SwiftUI
 
 @main
 struct FindYourWallApp: App {
+
+    private let spotService: SpotService = CloudKitSpotService()
+
     var body: some Scene {
         WindowGroup {
-            MapView()
+            MapView(spotService: self.spotService)
         }
-        .modelContainer(for: WallBallSpot.self, inMemory: false)
     }
 }

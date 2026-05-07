@@ -7,26 +7,25 @@
 
 import Foundation
 import MapKit
-import SwiftData
+import CloudKit
 
-/// This class defines the model for wall ball spots the user has saved on their device.
-@Model
-class WallBallSpot: Identifiable {
-    
-    var id: UUID = UUID()
+struct WallBallSpot: Identifiable {
+
+    private(set) var id: UUID = UUID()
 
     var name: String = WallBallSpot.unknownName
-    
-    // Defaults to US lacrosse headquarters for cloudkit compatability.
-    var latitude: Double = 39.521344
-    var longitude: Double = -76.645220
+    var latitude: Double = 0
+    var longitude: Double = 0
     var cLCoordinate: CLLocationCoordinate2D {
         .init(latitude: self.latitude, longitude: self.longitude)
     }
-    
+
     var address: String?
     var note: String?
     var imageData: Data?
+
+    /// The CloudKit record name, used for updates and deletes.
+    var recordName: String?
 
     init(name: String,
          latitude: Double,
@@ -48,8 +47,26 @@ class WallBallSpot: Identifiable {
         self.longitude = item.location.coordinate.longitude
         self.address = item.address?.shortAddress
     }
+
+    init(from record: CKRecord) {
+        self.id = UUID(uuidString: record["spotID"] as? String ?? "") ?? UUID()
+        self.recordName = record.recordID.recordName
+        self.name = record["name"] as? String ?? Self.unknownName
+        self.latitude = record["latitude"] as? Double ?? 0
+        self.longitude = record["longitude"] as? Double ?? 0
+        self.address = record["address"] as? String
+        self.note = record["note"] as? String
+        if let asset = record["image"] as? CKAsset, let url = asset.fileURL {
+            self.imageData = try? Data(contentsOf: url)
+        }
+    }
 }
 
 extension WallBallSpot {
     static let unknownName = "Unknown Spot"
+}
+
+extension Notification.Name {
+    static let wallBallSpotDidSave = Notification.Name("wallBallSpotDidSave")
+    static let wallBallSpotDidDelete = Notification.Name("wallBallSpotDidDelete")
 }

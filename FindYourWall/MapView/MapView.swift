@@ -7,15 +7,18 @@
 
 import MapKit
 import SwiftUI
-import SwiftData
 
 struct MapView: View {
-    
+
     @State private var currentRegion: MKCoordinateRegion = .init(center: .empowerStadium, span: MapViewModel.Constants.defaultSpan)
-    @Bindable private var viewModel = MapViewModel()
-    
-    // Eventually we should only query for spots that are within the map's span.
-    @Query private var wallBallSpots: [WallBallSpot]
+    @Bindable private var viewModel: MapViewModel
+
+    private let spotService: SpotService
+
+    init(spotService: SpotService) {
+        self.spotService = spotService
+        self.viewModel = MapViewModel(spotService: spotService)
+    }
     
     var body: some View {
         ZStack {
@@ -28,7 +31,7 @@ struct MapView: View {
                             .tag(MapViewModel.Constants.userPlacedLocationTag)
                     }
                     
-                    ForEach(self.wallBallSpots) { spot in
+                    ForEach(self.viewModel.spots) { spot in
                         Annotation("", coordinate: spot.cLCoordinate, anchor: .bottom) {
                             Text("🥍")
                                 .font(.system(size: Constants.laxEmojiFontSize))
@@ -65,14 +68,16 @@ struct MapView: View {
                 }
                 .sheet(item: self.$viewModel.selectedLocalSpot,
                        onDismiss: { self.viewModel.selectedLocalSpot = nil }) { spot in
-                    WallBallSpotSheetView(spot: spot)
+                    WallBallSpotSheetView(spot: spot,
+                                          spotService: self.spotService)
                 }
                 .sheet(isPresented: self.$viewModel.showMarkerSheet,
                        onDismiss: {
                     withAnimation { self.viewModel.selectedTag = nil }
                 }) {
                     if let mapItem = self.viewModel.getSelectedLocation()  {
-                        MarkerSheetView(mapItem: mapItem)
+                        MarkerSheetView(mapItem: mapItem,
+                                        spotService: self.spotService)
                     } else {
                         Text("Error: Invalid location selected")
                             .presentationDetents([Constants.errorSheetDetents])
@@ -80,6 +85,9 @@ struct MapView: View {
                 }
                 .safeAreaInset(edge: .bottom) {
                     self.searchBox
+                }
+                .task {
+                    await self.viewModel.fetchSpots()
                 }
                 .overlay(alignment: .bottomTrailing) {
                     self.fab
@@ -175,7 +183,7 @@ struct MapView: View {
 // MARK: - Preview
 
 #Preview {
-    MapView()
+    MapView(spotService: CloudKitSpotService())
 }
 
 extension CLLocationCoordinate2D {

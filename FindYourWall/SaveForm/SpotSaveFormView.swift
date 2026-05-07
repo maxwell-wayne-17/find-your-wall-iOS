@@ -7,40 +7,42 @@
 
 import SwiftUI
 import MapKit
-import SwiftData
 import PhotosUI
 
 struct SpotSaveFormView: View {
-    
-    @Environment(\.modelContext) var modelContext
+
     @Environment(\.dismiss) private var dismiss
-    
+
     @Bindable private var viewModel: SpotSaveFormViewModel
-    
+
+    private let spotService: SpotService
+
     private enum FocusedField {
         case name, address, note
     }
     @FocusState private var focusedField: FocusedField?
-    
+
     @State private var photosPickerItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showImageSourceSheet = false
     @State private var cameraError: CameraPermission.CameraError?
     @State private var selectedImage: UIImage?
-    
-    init(viewModel: SpotSaveFormViewModel) {
+    @State private var isSaving = false
+
+    init(viewModel: SpotSaveFormViewModel, spotService: SpotService) {
         self.viewModel = viewModel
+        self.spotService = spotService
     }
-    
+
     var body: some View {
-        
+
         NavigationView {
             Form {
                 Section {
                     TextField("Name (Required)", text: self.$viewModel.name)
                         .focused(self.$focusedField, equals: .name)
                 }
-                
+
                 Section(header: Text("Address (Optional)")) {
                     TextEditor(text: self.$viewModel.address)
                         .focused(self.$focusedField, equals: .address)
@@ -65,7 +67,7 @@ struct SpotSaveFormView: View {
                             .onTapGesture { self.showImageSourceSheet = true }
                     } else {
                         HStack(alignment: .center) {
-                            
+
                             Button("Camera", systemImage: "camera") {
                                 if let error = CameraPermission.checkPermissions() {
                                     self.cameraError = error
@@ -74,7 +76,7 @@ struct SpotSaveFormView: View {
                                 }
                             }
                             .alert(isPresented: .constant(self.cameraError != nil),
-                                   error: self.cameraError) { _ in 
+                                   error: self.cameraError) { _ in
                                 Button("OK") {
                                     self.cameraError = nil
                                 }
@@ -85,9 +87,9 @@ struct SpotSaveFormView: View {
                                 UIKitCamera(selectedImage: self.$selectedImage)
                                     .ignoresSafeArea()
                             }
-                            
+
                             Spacer()
-                            
+
                             PhotosPicker(selection: self.$photosPickerItem) {
                                 Label("Photos", systemImage: "photo")
                             }
@@ -95,7 +97,7 @@ struct SpotSaveFormView: View {
                             .buttonStyle(.borderless)
                         }
                     }
-                    
+
                     if let data = self.viewModel.imageData, let _ = UIImage(data: data) {
                         HStack {
                             Spacer()
@@ -120,20 +122,19 @@ struct SpotSaveFormView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                
+
                 HStack {
                     Button("Cancel") {
                         self.dismiss()
                     }
                     .buttonStyle(.primaryAction())
-                    
+
                     Button("Save") {
                         if self.viewModel.isFormValid {
                             self.saveWallBallSpot()
-                            self.dismiss()
                         }
                     }
-                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil)
+                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil || self.isSaving)
                     .buttonStyle(.primaryAction())
                 }
                 // Ignoring the keyboard overlay wasn't working,
@@ -154,29 +155,50 @@ struct SpotSaveFormView: View {
                 }
             }
         }
-    }
-    
-    private func saveWallBallSpot() {
-        let noteValue: String? = self.viewModel.note.isEmpty ? nil : self.viewModel.note
-        if let spot = self.viewModel.existingSpot {
-            spot.name = self.viewModel.name
-            spot.address = self.viewModel.address
-            spot.note = noteValue
-            spot.imageData = self.viewModel.imageData
-        } else {
-            let spot = WallBallSpot(name: self.viewModel.name,
-                                         latitude: self.viewModel.coordinate.latitude,
-                                         longitude: self.viewModel.coordinate.longitude,
-                                         address: self.viewModel.address,
-                                         note: noteValue,
-                                         imageData: self.viewModel.imageData)
-            self.modelContext.insert(spot)
-            if modelContext.hasChanges {
-                try? modelContext.save()
+        .overlay {
+            if self.isSaving {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .tint(.white)
+                        .scaleEffect(1.5)
+                }
             }
         }
     }
-    
+
+    private func saveWallBallSpot() {
+        let noteValue: String? = self.viewModel.note.isEmpty ? nil : self.viewModel.note
+
+        var spot: WallBallSpot
+        if var existingSpot = self.viewModel.existingSpot {
+            existingSpot.name = self.viewModel.name
+            existingSpot.address = self.viewModel.address
+            existingSpot.note = noteValue
+            existingSpot.imageData = self.viewModel.imageData
+            spot = existingSpot
+        } else {
+            spot = WallBallSpot(name: self.viewModel.name,
+                                latitude: self.viewModel.coordinate.latitude,
+                                longitude: self.viewModel.coordinate.longitude,
+                                address: self.viewModel.address,
+                                note: noteValue,
+                                imageData: self.viewModel.imageData)
+        }
+
+        self.isSaving = true
+        Task {
+            do {
+                let _ = try await self.spotService.saveSpot(spot)
+                await MainActor.run { self.dismiss() }
+            } catch {
+                print("CloudKit save failed: \(error)")
+                await MainActor.run { self.isSaving = false }
+            }
+        }
+    }
+
     private struct Constants {
         static let keyboardDismissIcon = "keyboard.chevron.compact.down"
         static let compressionQuality = 0.8
@@ -186,6 +208,6 @@ struct SpotSaveFormView: View {
 
 #Preview {
     let viewModel = SpotSaveFormViewModel(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
-    SpotSaveFormView(viewModel: viewModel)
+    SpotSaveFormView(viewModel: viewModel, spotService: CloudKitSpotService())
         .preferredColorScheme(.dark)
 }
