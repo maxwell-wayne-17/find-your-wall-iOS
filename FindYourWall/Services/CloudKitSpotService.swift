@@ -41,7 +41,6 @@ final class CloudKitSpotService: SpotService {
         record["longitude"] = spot.longitude
         record["address"] = spot.address
         record["note"] = spot.note
-        record["image"] = nil
 
         if let imageData = spot.imageData {
             let tempURL = FileManager.default.temporaryDirectory
@@ -49,12 +48,13 @@ final class CloudKitSpotService: SpotService {
             try imageData.write(to: tempURL)
             record["image"] = CKAsset(fileURL: tempURL)
             let savedRecord = try await self.publicDB.save(record)
-            try? FileManager.default.removeItem(at: tempURL)
             let savedSpot = WallBallSpot(from: savedRecord)
             NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
+            try? FileManager.default.removeItem(at: tempURL)
             return savedSpot
         }
 
+        record["image"] = nil
         let savedRecord = try await self.publicDB.save(record)
         let savedSpot = WallBallSpot(from: savedRecord)
         NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
