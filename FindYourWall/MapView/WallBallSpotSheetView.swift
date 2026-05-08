@@ -105,8 +105,11 @@ struct WallBallSpotSheetView: View {
     }
 
     private func getDetents() -> PresentationDetent {
-        if self.viewModel.spot.imageData != nil { return .large }
-        if !(self.viewModel.spot.note ?? "").isEmpty { return Constants.detentsWithNote }
+        let hasNote = !(self.viewModel.spot.note ?? "").isEmpty
+        let hasImage = self.viewModel.spot.imageData != nil
+        if hasNote && hasImage { return .large }
+        if hasNote && !hasImage { return Constants.detentsWithOnlyNote }
+        if !hasNote && hasImage { return Constants.detentsWithOnlyImage }
         return Constants.detentsWithoutNoteOrImage
     }
     
@@ -114,7 +117,8 @@ struct WallBallSpotSheetView: View {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
         static let detentsWithoutNoteOrImage: PresentationDetent = .height(260)
-        static let detentsWithNote: PresentationDetent = .height(500)
+        static let detentsWithOnlyNote: PresentationDetent = .height(500)
+        static let detentsWithOnlyImage: PresentationDetent = .height(575)
     }
 }
 
