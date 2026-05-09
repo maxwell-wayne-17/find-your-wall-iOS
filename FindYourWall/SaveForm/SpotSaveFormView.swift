@@ -165,6 +165,14 @@ struct SpotSaveFormView: View {
                 }
             }
         }
+        .alert("Error", isPresented: Binding(
+            get: { self.viewModel.errorMessage != nil },
+            set: { if !$0 { self.viewModel.errorMessage = nil } }
+        )) {
+            Button("OK") { self.viewModel.errorMessage = nil }
+        } message: {
+            Text(self.viewModel.errorMessage ?? "")
+        }
     }
 
     private struct Constants {

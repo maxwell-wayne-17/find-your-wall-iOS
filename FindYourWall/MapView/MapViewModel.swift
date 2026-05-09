@@ -26,6 +26,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     var showMarkerSheet = false
     var selectedLocalSpot: WallBallSpot?
     var spots: [WallBallSpot] = []
+    var errorMessage: String?
 
     init(spotService: SpotService, locationManager: CLLocationManager = .init()) {
         self.spotService = spotService
@@ -117,7 +118,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         case .success(let spots):
             self.spots = spots
         case .failure(let error):
-            print("Failed to fetch spots: \(error)")
+            self.errorMessage = error.localizedDescription
         }
     }
 

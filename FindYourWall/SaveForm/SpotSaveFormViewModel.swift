@@ -21,6 +21,7 @@ class SpotSaveFormViewModel: NSObject {
     var imageData: Data?
     var isSaving = false
     var didSave = false
+    var errorMessage: String?
 
     var isFormValid: Bool {
         !self.name.trimmingCharacters(in: .whitespaces).isEmpty
@@ -78,7 +79,7 @@ class SpotSaveFormViewModel: NSObject {
             case .success:
                 await MainActor.run { self.didSave = true }
             case .failure(let error):
-                print("CloudKit save failed: \(error)")
+                self.errorMessage = error.localizedDescription
                 await MainActor.run { self.isSaving = false }
             }
         }

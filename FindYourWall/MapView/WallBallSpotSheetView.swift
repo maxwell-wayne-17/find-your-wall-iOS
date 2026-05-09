@@ -67,8 +67,7 @@ struct WallBallSpotSheetView: View {
                     HStack {
 
                         Button {
-                            self.viewModel.deleteSpot()
-                            self.dismiss()
+                            Task { await self.viewModel.deleteSpot() }
                         } label: {
                             Text("Delete")
                         }
@@ -101,6 +100,17 @@ struct WallBallSpotSheetView: View {
             if let data = viewModel.spot.imageData, let uiImage = UIImage(data: data) {
                 ImagePreviewView(uiImage: uiImage)
             }
+        }
+        .onChange(of: self.viewModel.didDelete) {
+            if self.viewModel.didDelete { self.dismiss() }
+        }
+        .alert("Error", isPresented: Binding(
+            get: { self.viewModel.errorMessage != nil },
+            set: { if !$0 { self.viewModel.errorMessage = nil } }
+        )) {
+            Button("OK") { self.viewModel.errorMessage = nil }
+        } message: {
+            Text(self.viewModel.errorMessage ?? "")
         }
     }
 

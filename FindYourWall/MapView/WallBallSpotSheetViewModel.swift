@@ -15,6 +15,8 @@ class WallBallSpotSheetViewModel {
 
     var showSaveForm = false
     var showImagePreview = false
+    var errorMessage: String?
+    var didDelete = false
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -32,12 +34,14 @@ class WallBallSpotSheetViewModel {
             .store(in: &self.cancellables)
     }
 
-    func deleteSpot() {
+    @MainActor
+    func deleteSpot() async {
         guard let recordName = self.spot.recordName else { return }
-        Task {
-            if case .failure(let error) = await self.spotService.deleteSpot(recordName: recordName) {
-                print("CloudKit delete failed: \(error)")
-            }
+        switch await self.spotService.deleteSpot(recordName: recordName) {
+        case .success:
+            self.didDelete = true
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
 

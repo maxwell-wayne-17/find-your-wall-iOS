@@ -61,7 +61,7 @@ final class CloudKitSpotService: SpotService {
             NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
             return .success(savedSpot)
         } catch {
-            return .failure(error)
+            return .failure(self.isNetworkError(error) ? SpotServiceError.networkError : SpotServiceError.saveFailed)
         }
     }
 
@@ -71,7 +71,7 @@ final class CloudKitSpotService: SpotService {
             let (results, _) = try await self.publicDB.records(matching: query)
             return .success(results.compactMap { try? $0.1.get() }.map { WallBallSpot(from: $0) })
         } catch {
-            return .failure(error)
+            return .failure(self.isNetworkError(error) ? SpotServiceError.networkError : SpotServiceError.fetchFailed)
         }
     }
 
@@ -82,7 +82,38 @@ final class CloudKitSpotService: SpotService {
             NotificationCenter.default.post(name: .wallBallSpotDidDelete, object: recordName)
             return .success(())
         } catch {
-            return .failure(error)
+            return .failure(self.isNetworkError(error) ? SpotServiceError.networkError : SpotServiceError.deleteFailed)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func isNetworkError(_ error: Error) -> Bool {
+        if let ckError = error as? CKError {
+            return ckError.code == .networkUnavailable || ckError.code == .networkFailure
+        }
+        return (error as NSError).domain == NSURLErrorDomain
+    }
+
+    // MARK: - SpotServiceError
+
+    enum SpotServiceError: LocalizedError {
+        case networkError
+        case saveFailed
+        case fetchFailed
+        case deleteFailed
+
+        var errorDescription: String? {
+            switch self {
+            case .networkError:
+                return "Network error. Please try again with better connection."
+            case .saveFailed:
+                return "Unable to save spot. Please try again."
+            case .fetchFailed:
+                return "Unable to load spots. Please try again."
+            case .deleteFailed:
+                return "Unable to delete spot. Please try again."
+            }
         }
     }
 }
