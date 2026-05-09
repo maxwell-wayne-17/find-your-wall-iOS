@@ -65,11 +65,25 @@ final class CloudKitSpotService: SpotService {
         }
     }
 
-    func fetchAllSpots() async -> Result<[WallBallSpot], Error> {
+    func fetchAllSpots(cursorResultBlock: (([WallBallSpot]) -> Void)?) async -> Result<Void, Error> {
         do {
             let query = CKQuery(recordType: Self.recordType, predicate: NSPredicate(value: true))
-            let (results, _) = try await self.publicDB.records(matching: query)
-            return .success(results.compactMap { try? $0.1.get() }.map { WallBallSpot(from: $0) })
+            var (results, cursor) = try await self.publicDB.records(matching: query)
+            
+            let initialSpotsBatch = results.compactMap { try? $0.1.get() }.map { WallBallSpot(from: $0) }
+            cursorResultBlock?(initialSpotsBatch)
+            
+            // If the number of spots in the DB exceeds the default results limit,
+            // we will begin to recieve the rest of the results in batches.
+            // The caller of this function will pass in a closure to handle each back of WallBallSpots retrieved.
+            while let nextCursor = cursor {
+                let nextBatch = try await self.publicDB.records(continuingMatchFrom: nextCursor)
+                let nextSpotsBatch = nextBatch.matchResults.compactMap { try? $0.1.get() }.map { WallBallSpot(from: $0) }
+                cursorResultBlock?(nextSpotsBatch)
+                cursor = nextBatch.queryCursor
+            }
+            
+            return .success(())
         } catch {
             return .failure(self.isNetworkError(error) ? SpotServiceError.networkError : SpotServiceError.fetchFailed)
         }

@@ -114,9 +114,12 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
 
     @MainActor
     func fetchSpots() async {
-        switch await self.spotService.fetchAllSpots() {
-        case .success(let spots):
-            self.spots = spots
+        let result = await self.spotService.fetchAllSpots { spots in
+            self.spots.append(contentsOf: spots)
+        }
+        switch result {
+        case .success:
+            return
         case .failure(let error):
             self.errorMessage = error.localizedDescription
         }
