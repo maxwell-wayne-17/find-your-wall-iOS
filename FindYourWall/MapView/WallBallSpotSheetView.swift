@@ -94,8 +94,7 @@ struct WallBallSpotSheetView: View {
         .padding([.top], Constants.vstackSpacing)
         .presentationDetents([self.getDetents()])
         .sheet(isPresented: self.$viewModel.showSaveForm) {
-            SpotSaveFormView(viewModel: .init(spot: self.viewModel.spot),
-                             spotService: self.viewModel.spotService)
+            SpotSaveFormView(viewModel: .init(spot: self.viewModel.spot, spotService: self.viewModel.spotService))
         }
         .fullScreenCover(isPresented: $viewModel.showImagePreview) {
             if let data = viewModel.spot.imageData, let uiImage = UIImage(data: data) {

@@ -43,8 +43,7 @@ struct MarkerSheetView: View {
         .presentationDetents([Constants.markerSheetDetentHeight])
         .sheet(isPresented: self.$showSaveForm,
                onDismiss: { self.dismiss() }) {
-            SpotSaveFormView(viewModel: .init(mapItem: self.mapItem),
-                             spotService: self.spotService)
+            SpotSaveFormView(viewModel: .init(mapItem: self.mapItem, spotService: self.spotService))
         }
     }
     

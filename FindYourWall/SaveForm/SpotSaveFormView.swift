@@ -15,8 +15,6 @@ struct SpotSaveFormView: View {
 
     @Bindable private var viewModel: SpotSaveFormViewModel
 
-    private let spotService: SpotService
-
     private enum FocusedField {
         case name, address, note
     }
@@ -27,11 +25,9 @@ struct SpotSaveFormView: View {
     @State private var showImageSourceSheet = false
     @State private var cameraError: CameraPermission.CameraError?
     @State private var selectedImage: UIImage?
-    @State private var isSaving = false
 
-    init(viewModel: SpotSaveFormViewModel, spotService: SpotService) {
+    init(viewModel: SpotSaveFormViewModel) {
         self.viewModel = viewModel
-        self.spotService = spotService
     }
 
     var body: some View {
@@ -131,10 +127,10 @@ struct SpotSaveFormView: View {
 
                     Button("Save") {
                         if self.viewModel.isFormValid {
-                            self.saveWallBallSpot()
+                            self.viewModel.save()
                         }
                     }
-                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil || self.isSaving)
+                    .disabled(!self.viewModel.isFormValid || self.focusedField != nil || self.viewModel.isSaving)
                     .buttonStyle(.primaryAction())
                 }
                 // Ignoring the keyboard overlay wasn't working,
@@ -154,9 +150,12 @@ struct SpotSaveFormView: View {
                     self.viewModel.imageData = image.jpegData(compressionQuality: Constants.compressionQuality)
                 }
             }
+            .onChange(of: self.viewModel.didSave) {
+                if self.viewModel.didSave { self.dismiss() }
+            }
         }
         .overlay {
-            if self.isSaving {
+            if self.viewModel.isSaving {
                 ZStack {
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
@@ -164,37 +163,6 @@ struct SpotSaveFormView: View {
                         .tint(.white)
                         .scaleEffect(1.5)
                 }
-            }
-        }
-    }
-
-    private func saveWallBallSpot() {
-        let noteValue: String? = self.viewModel.note.isEmpty ? nil : self.viewModel.note
-
-        var spot: WallBallSpot
-        if var existingSpot = self.viewModel.existingSpot {
-            existingSpot.name = self.viewModel.name
-            existingSpot.address = self.viewModel.address
-            existingSpot.note = noteValue
-            existingSpot.imageData = self.viewModel.imageData
-            spot = existingSpot
-        } else {
-            spot = WallBallSpot(name: self.viewModel.name,
-                                latitude: self.viewModel.coordinate.latitude,
-                                longitude: self.viewModel.coordinate.longitude,
-                                address: self.viewModel.address,
-                                note: noteValue,
-                                imageData: self.viewModel.imageData)
-        }
-
-        self.isSaving = true
-        Task {
-            do {
-                let _ = try await self.spotService.saveSpot(spot)
-                await MainActor.run { self.dismiss() }
-            } catch {
-                print("CloudKit save failed: \(error)")
-                await MainActor.run { self.isSaving = false }
             }
         }
     }
@@ -207,7 +175,8 @@ struct SpotSaveFormView: View {
 
 
 #Preview {
-    let viewModel = SpotSaveFormViewModel(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil))
-    SpotSaveFormView(viewModel: viewModel, spotService: CloudKitSpotService())
+    let viewModel = SpotSaveFormViewModel(mapItem: MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil),
+                                          spotService: CloudKitSpotService())
+    SpotSaveFormView(viewModel: viewModel)
         .preferredColorScheme(.dark)
 }
