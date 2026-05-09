@@ -58,7 +58,8 @@ struct WallBallSpotSheetView: View {
                 .buttonStyle(.plain)
                 .contentShape(Rectangle()) // This is required, otherwise the tappable area includes the portion of the image that got clipped.
             }
-
+            
+            Spacer()
 
             VStack(spacing: Constants.buttonVstackSpacing) {
 
@@ -117,7 +118,7 @@ struct WallBallSpotSheetView: View {
         static let buttonVstackSpacing: CGFloat = -20
         static let detentsWithoutNoteOrImage: PresentationDetent = .height(260)
         static let detentsWithOnlyNote: PresentationDetent = .height(500)
-        static let detentsWithOnlyImage: PresentationDetent = .height(575)
+        static let detentsWithOnlyImage: PresentationDetent = .height(600)
     }
 }
 
