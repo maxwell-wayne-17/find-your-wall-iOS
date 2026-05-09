@@ -35,9 +35,7 @@ class WallBallSpotSheetViewModel {
     func deleteSpot() {
         guard let recordName = self.spot.recordName else { return }
         Task {
-            do {
-                try await self.spotService.deleteSpot(recordName: recordName)
-            } catch {
+            if case .failure(let error) = await self.spotService.deleteSpot(recordName: recordName) {
                 print("CloudKit delete failed: \(error)")
             }
         }

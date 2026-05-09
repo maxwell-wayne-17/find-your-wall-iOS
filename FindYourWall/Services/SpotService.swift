@@ -8,7 +8,7 @@
 import Foundation
 
 protocol SpotService {
-    func saveSpot(_ spot: WallBallSpot) async throws -> WallBallSpot
-    func fetchAllSpots() async throws -> [WallBallSpot]
-    func deleteSpot(recordName: String) async throws
+    func saveSpot(_ spot: WallBallSpot) async -> Result<WallBallSpot, Error>
+    func fetchAllSpots() async -> Result<[WallBallSpot], Error>
+    func deleteSpot(recordName: String) async -> Result<Void, Error>
 }

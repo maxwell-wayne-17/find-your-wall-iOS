@@ -97,6 +97,11 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         }
     }
     
+    func clearMapMarkers() {
+        self.mapSearchResults = []
+        self.userPlacedLocation = nil
+    }
+    
     private func setCameraPosition(for location: CLLocation?) {
         guard let userLocation = location?.coordinate else { return }
         self.cameraPosition = .region(
@@ -108,9 +113,10 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
 
     @MainActor
     func fetchSpots() async {
-        do {
-            self.spots = try await self.spotService.fetchAllSpots()
-        } catch {
+        switch await self.spotService.fetchAllSpots() {
+        case .success(let spots):
+            self.spots = spots
+        case .failure(let error):
             print("Failed to fetch spots: \(error)")
         }
     }

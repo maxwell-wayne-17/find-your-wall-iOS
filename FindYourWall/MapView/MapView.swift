@@ -130,7 +130,7 @@ struct MapView: View {
                         Button {
                             self.searchText = ""
                             self.searchFieldFocus = false
-                            self.viewModel.mapSearchResults = []
+                            self.viewModel.clearMapMarkers()
                         } label: {
                             Image(systemName: Constants.searchCancelIcon)
                         }
@@ -173,7 +173,7 @@ struct MapView: View {
     private var refreshFab: some View {
         Button(action: {
             self.searchText = ""
-            self.viewModel.mapSearchResults = []
+            self.viewModel.clearMapMarkers()
             Task {
                 await self.viewModel.fetchSpots()
             }

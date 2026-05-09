@@ -74,10 +74,10 @@ class SpotSaveFormViewModel: NSObject {
 
         self.isSaving = true
         Task {
-            do {
-                let _ = try await self.spotService.saveSpot(spot)
+            switch await self.spotService.saveSpot(spot) {
+            case .success:
                 await MainActor.run { self.didSave = true }
-            } catch {
+            case .failure(let error):
                 print("CloudKit save failed: \(error)")
                 await MainActor.run { self.isSaving = false }
             }
