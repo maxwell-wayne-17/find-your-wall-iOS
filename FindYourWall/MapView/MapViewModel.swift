@@ -13,6 +13,7 @@ import _MapKit_SwiftUI
 
 @Observable
 class MapViewModel: NSObject, CLLocationManagerDelegate {
+    private let notificationCenter: NotificationCenter
     private var locationManager: CLLocationManager
     private let spotService: SpotService
     private var cancellables = Set<AnyCancellable>()
@@ -28,8 +29,11 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     var spots: [WallBallSpot] = []
     var errorMessage: String?
 
-    init(spotService: SpotService, locationManager: CLLocationManager = .init()) {
+    init(spotService: SpotService,
+         notificationCenter: NotificationCenter = .default,
+         locationManager: CLLocationManager = .init()) {
         self.spotService = spotService
+        self.notificationCenter = notificationCenter
         self.locationManager = locationManager
         super.init()
         self.locationManager.delegate = self
@@ -37,7 +41,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
         self.locationManager.startMonitoringSignificantLocationChanges()
         self.setCameraPosition(for: locationManager.location)
 
-        NotificationCenter.default.publisher(for: .wallBallSpotDidSave)
+        self.notificationCenter.publisher(for: .wallBallSpotDidSave)
             .compactMap { $0.object as? WallBallSpot }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] savedSpot in
@@ -50,7 +54,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
             }
             .store(in: &self.cancellables)
 
-        NotificationCenter.default.publisher(for: .wallBallSpotDidDelete)
+        self.notificationCenter.publisher(for: .wallBallSpotDidDelete)
             .compactMap { $0.object as? String }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] recordName in

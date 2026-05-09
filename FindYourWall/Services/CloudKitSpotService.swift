@@ -14,6 +14,12 @@ final class CloudKitSpotService: SpotService {
     private var publicDB: CKDatabase { self.container.publicCloudDatabase }
 
     private static let recordType = "WallBallSpot"
+    
+    private let notificationCenter: NotificationCenter
+    
+    init(notificationCenter: NotificationCenter = .default) {
+        self.notificationCenter = notificationCenter
+    }
 
     // MARK: - SpotService
 
@@ -50,7 +56,7 @@ final class CloudKitSpotService: SpotService {
                 record["image"] = CKAsset(fileURL: tempURL)
                 let savedRecord = try await self.publicDB.save(record)
                 let savedSpot = WallBallSpot(from: savedRecord)
-                NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
+                self.notificationCenter.post(name: .wallBallSpotDidSave, object: savedSpot)
                 try? FileManager.default.removeItem(at: tempURL)
                 return .success(savedSpot)
             }
@@ -58,7 +64,7 @@ final class CloudKitSpotService: SpotService {
             record["image"] = nil
             let savedRecord = try await self.publicDB.save(record)
             let savedSpot = WallBallSpot(from: savedRecord)
-            NotificationCenter.default.post(name: .wallBallSpotDidSave, object: savedSpot)
+            self.notificationCenter.post(name: .wallBallSpotDidSave, object: savedSpot)
             return .success(savedSpot)
         } catch {
             return .failure(self.isNetworkError(error) ? SpotServiceError.networkError : SpotServiceError.saveFailed)
@@ -93,7 +99,7 @@ final class CloudKitSpotService: SpotService {
         do {
             let recordID = CKRecord.ID(recordName: recordName)
             try await self.publicDB.deleteRecord(withID: recordID)
-            NotificationCenter.default.post(name: .wallBallSpotDidDelete, object: recordName)
+            self.notificationCenter.post(name: .wallBallSpotDidDelete, object: recordName)
             return .success(())
         } catch {
             return .failure(self.isNetworkError(error) ? SpotServiceError.networkError : SpotServiceError.deleteFailed)

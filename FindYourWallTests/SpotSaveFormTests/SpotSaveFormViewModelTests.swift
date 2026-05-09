@@ -14,7 +14,8 @@ struct SpotSaveFormViewModelTests {
     
     private var defaultSut: SpotSaveFormViewModel {
         SpotSaveFormViewModel(mapItem: .init(location: .init(latitude: 123, longitude: 456),
-                                                       address: nil))
+                                                       address: nil),
+                              spotService: MockSpotService())
     }
     
     private func getMapItemWithAddress() async throws -> MKMapItem? {
@@ -30,7 +31,7 @@ struct SpotSaveFormViewModelTests {
     func testPrepopulatedAddress() async throws {
         let mapItem = try #require(await self.getMapItemWithAddress())
 
-        let sut = SpotSaveFormViewModel(mapItem: mapItem)
+        let sut = SpotSaveFormViewModel(mapItem: mapItem, spotService: MockSpotService())
 
         #expect(sut.address == mapItem.address?.shortAddress)
         #expect(sut.name == mapItem.name)
@@ -52,7 +53,7 @@ struct SpotSaveFormViewModelTests {
     func testAddressFromMapItemIsUsedWhenAddressPropertiesArentSet() async throws {
         let mapItem = try #require(await self.getMapItemWithAddress())
 
-        let sut = SpotSaveFormViewModel(mapItem: mapItem)
+        let sut = SpotSaveFormViewModel(mapItem: mapItem, spotService: MockSpotService())
         #expect(sut.address == mapItem.address?.shortAddress)
     }
     
@@ -64,7 +65,7 @@ struct SpotSaveFormViewModelTests {
                                      address: "123 Street St",
                                      note: "New note")
 
-        let sut = SpotSaveFormViewModel(spot: spot)
+        let sut = SpotSaveFormViewModel(spot: spot, spotService: MockSpotService())
 
         #expect(sut.name == spot.name)
         #expect(sut.address == spot.address)
@@ -90,7 +91,7 @@ struct SpotSaveFormViewModelTests {
         let mapItem = MKMapItem(location: .init(latitude: 123, longitude: 456), address: nil)
         mapItem.name = MKMapItem.unknownLocation
 
-        let sut = SpotSaveFormViewModel(mapItem: mapItem)
+        let sut = SpotSaveFormViewModel(mapItem: mapItem, spotService: MockSpotService())
 
         #expect(sut.name.isEmpty)
     }
@@ -106,7 +107,7 @@ struct SpotSaveFormViewModelTests {
     func testInitWithSpotUnknownNameIsCleared() {
         let spot = WallBallSpot(name: WallBallSpot.unknownName, latitude: 123, longitude: 456)
 
-        let sut = SpotSaveFormViewModel(spot: spot)
+        let sut = SpotSaveFormViewModel(spot: spot, spotService: MockSpotService())
 
         #expect(sut.name.isEmpty)
     }
@@ -115,7 +116,7 @@ struct SpotSaveFormViewModelTests {
     func testInitWithSpotNilAddressIsEmpty() {
         let spot = WallBallSpot(name: "Test", latitude: 123, longitude: 456, address: nil)
 
-        let sut = SpotSaveFormViewModel(spot: spot)
+        let sut = SpotSaveFormViewModel(spot: spot, spotService: MockSpotService())
 
         #expect(sut.address.isEmpty)
     }
@@ -124,7 +125,7 @@ struct SpotSaveFormViewModelTests {
     func testInitWithSpotNilNoteIsEmpty() {
         let spot = WallBallSpot(name: "Test", latitude: 123, longitude: 456, note: nil)
 
-        let sut = SpotSaveFormViewModel(spot: spot)
+        let sut = SpotSaveFormViewModel(spot: spot, spotService: MockSpotService())
 
         #expect(sut.note.isEmpty)
     }
@@ -134,7 +135,7 @@ struct SpotSaveFormViewModelTests {
         let imageData = Data([0x01, 0x02])
         let spot = WallBallSpot(name: "Test", latitude: 123, longitude: 456, imageData: imageData)
 
-        let sut = SpotSaveFormViewModel(spot: spot)
+        let sut = SpotSaveFormViewModel(spot: spot, spotService: MockSpotService())
 
         #expect(sut.imageData == imageData)
     }

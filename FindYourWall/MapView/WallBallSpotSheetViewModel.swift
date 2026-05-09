@@ -18,13 +18,17 @@ class WallBallSpotSheetViewModel {
     var errorMessage: String?
     var didDelete = false
 
+    private let notificationCenter: NotificationCenter
     private var cancellables = Set<AnyCancellable>()
 
-    init(spot: WallBallSpot, spotService: SpotService) {
+    init(spot: WallBallSpot,
+         spotService: SpotService,
+         notificationCenter: NotificationCenter = .default) {
         self.spot = spot
         self.spotService = spotService
+        self.notificationCenter = notificationCenter
 
-        NotificationCenter.default.publisher(for: .wallBallSpotDidSave)
+        self.notificationCenter.publisher(for: .wallBallSpotDidSave)
             .compactMap { $0.object as? WallBallSpot }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] savedSpot in
