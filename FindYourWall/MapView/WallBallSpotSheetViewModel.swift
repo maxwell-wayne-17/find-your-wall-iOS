@@ -54,9 +54,7 @@ class WallBallSpotSheetViewModel {
     }
 
     func hideSpot() {
-        let hiddenSpot = HiddenSpot(id: self.spot.id.uuidString,
-                                     name: self.spot.name,
-                                     address: self.spot.address)
+        let hiddenSpot = HiddenSpot(from: self.spot)
         self.hiddenSpotsStore.hide(hiddenSpot)
         self.didHide = true
     }

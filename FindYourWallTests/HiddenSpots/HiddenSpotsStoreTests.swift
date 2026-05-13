@@ -68,18 +68,20 @@ struct HiddenSpotsStoreTests {
     @Test
     func isHiddenReturnsTrueForHiddenSpot() {
         let sut = self.makeSUT()
-        let spot = self.makeHiddenSpot()
+        let wallBallSpot = WallBallSpot(name: "", latitude: 1, longitude: 1)
+        let hiddenSpot = HiddenSpot(from: wallBallSpot)
 
-        sut.hide(spot)
+        sut.hide(hiddenSpot)
 
-        #expect(sut.isHidden(id: spot.id) == true)
+        #expect(sut.isHidden(wallBallSpot) == true)
     }
 
     @Test
     func isHiddenReturnsFalseForUnhiddenSpot() {
         let sut = self.makeSUT()
+        let spot = WallBallSpot(name: "", latitude: 1, longitude: 2)
 
-        #expect(sut.isHidden(id: "some-id") == false)
+        #expect(sut.isHidden(spot) == false)
     }
 
     @Test

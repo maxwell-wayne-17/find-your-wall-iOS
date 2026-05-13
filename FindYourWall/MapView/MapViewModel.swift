@@ -32,7 +32,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     var errorMessage: String?
 
     var visibleSpots: [WallBallSpot] {
-        self.spots.filter { !self.hiddenSpotsStore.isHidden(id: $0.id.uuidString) }
+        self.spots.filter { !self.hiddenSpotsStore.isHidden($0) }
     }
 
     init(spotService: SpotService,

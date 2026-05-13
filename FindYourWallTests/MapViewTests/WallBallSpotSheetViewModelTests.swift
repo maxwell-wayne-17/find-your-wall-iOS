@@ -114,7 +114,7 @@ struct WallBallSpotSheetViewModelTests {
         sut.hideSpot()
 
         #expect(sut.didHide == true)
-        #expect(hiddenSpotsStore.isHidden(id: spot.id.uuidString) == true)
+        #expect(hiddenSpotsStore.isHidden(spot) == true)
         #expect(hiddenSpotsStore.allHiddenSpots.first?.name == spot.name)
     }
 

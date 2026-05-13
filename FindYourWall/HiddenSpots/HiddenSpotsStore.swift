@@ -21,7 +21,6 @@ class HiddenSpotsStore {
     }
 
     func hide(_ spot: HiddenSpot) {
-        guard !self.allHiddenSpots.contains(where: { $0.id == spot.id }) else { return }
         self.allHiddenSpots.insert(spot)
         self.persist(self.allHiddenSpots)
     }
@@ -31,8 +30,8 @@ class HiddenSpotsStore {
         self.persist(self.allHiddenSpots)
     }
 
-    func isHidden(id: String) -> Bool {
-        self.allHiddenSpots.contains { $0.id == id }
+    func isHidden( _ spot: WallBallSpot) -> Bool {
+        self.allHiddenSpots.contains(HiddenSpot(from: spot))
     }
 
     // MARK: - Private
