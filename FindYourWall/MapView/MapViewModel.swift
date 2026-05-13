@@ -16,6 +16,7 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     private let notificationCenter: NotificationCenter
     private var locationManager: CLLocationManager
     private let spotService: SpotService
+    private let hiddenSpotsStore: HiddenSpotsStore
     private var cancellables = Set<AnyCancellable>()
 
     var cameraPosition: MapCameraPosition = .region(.init(center: .empowerStadium, span: Constants.defaultSpan))
@@ -27,12 +28,19 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     var showMarkerSheet = false
     var selectedLocalSpot: WallBallSpot?
     var spots: [WallBallSpot] = []
+    var showHiddenSpotsSheet = false
     var errorMessage: String?
 
+    var visibleSpots: [WallBallSpot] {
+        self.spots.filter { !self.hiddenSpotsStore.isHidden(id: $0.id.uuidString) }
+    }
+
     init(spotService: SpotService,
+         hiddenSpotsStore: HiddenSpotsStore = .init(),
          notificationCenter: NotificationCenter = .default,
          locationManager: CLLocationManager = .init()) {
         self.spotService = spotService
+        self.hiddenSpotsStore = hiddenSpotsStore
         self.notificationCenter = notificationCenter
         self.locationManager = locationManager
         super.init()

@@ -14,10 +14,12 @@ struct MapView: View {
     @Bindable private var viewModel: MapViewModel
 
     private let spotService: SpotService
+    private let hiddenSpotsStore: HiddenSpotsStore
 
-    init(spotService: SpotService) {
+    init(spotService: SpotService, hiddenSpotsStore: HiddenSpotsStore = .init()) {
         self.spotService = spotService
-        self.viewModel = MapViewModel(spotService: spotService)
+        self.hiddenSpotsStore = hiddenSpotsStore
+        self.viewModel = MapViewModel(spotService: spotService, hiddenSpotsStore: hiddenSpotsStore)
     }
     
     var body: some View {
@@ -32,7 +34,7 @@ struct MapView: View {
                             .tag(MapViewModel.Constants.userPlacedLocationTag)
                     }
                     
-                    ForEach(self.viewModel.spots) { spot in
+                    ForEach(self.viewModel.visibleSpots) { spot in
                         Annotation("", coordinate: spot.cLCoordinate, anchor: .bottom) {
                             let backgroundColor: Color = spot.isOwnedByCurrentUser ? .green : .blue
                             Text("🥍")
@@ -71,7 +73,8 @@ struct MapView: View {
                 .sheet(item: self.$viewModel.selectedLocalSpot,
                        onDismiss: { self.viewModel.selectedLocalSpot = nil }) { spot in
                     WallBallSpotSheetView(spot: spot,
-                                          spotService: self.spotService)
+                                          spotService: self.spotService,
+                                          hiddenSpotsStore: self.hiddenSpotsStore)
                 }
                 .sheet(isPresented: self.$viewModel.showMarkerSheet,
                        onDismiss: {
@@ -85,6 +88,9 @@ struct MapView: View {
                             .presentationDetents([Constants.errorSheetDetents])
                     }
                 }
+                .sheet(isPresented: self.$viewModel.showHiddenSpotsSheet) {
+                    HiddenSpotsView(hiddenSpotsStore: self.hiddenSpotsStore)
+                }
                 .safeAreaInset(edge: .bottom) {
                     self.searchBox
                 }
@@ -93,6 +99,9 @@ struct MapView: View {
                 }
                 .overlay(alignment: .bottomTrailing) {
                     VStack {
+                        if !self.hiddenSpotsStore.allHiddenSpots.isEmpty {
+                            self.hiddenSpotsFab
+                        }
                         self.refreshFab
                         self.placePinFab
                     }
@@ -156,6 +165,19 @@ struct MapView: View {
         .padding()
     }
     
+    // MARK: - Hidden Spots Floating Action Button
+
+    private var hiddenSpotsFab: some View {
+        Button(action: {
+            self.viewModel.showHiddenSpotsSheet = true
+        }) {
+            Image(systemName: Constants.hiddenSpotsFabIconName)
+                .resizable()
+                .foregroundStyle(Color.blue)
+                .frame(width: Constants.fabEdgeSize, height: Constants.fabEdgeSize)
+        }
+    }
+
     // MARK: - Place Pin Floating Action Button
     
     private var placePinFab: some View {
@@ -206,6 +228,7 @@ struct MapView: View {
         static let errorSheetDetents: PresentationDetent = .height(50)
         
         static let fabIconName = "plus.circle.fill"
+        static let hiddenSpotsFabIconName = "eye.slash.circle.fill"
         static let refreshFabIconName = "arrow.clockwise.circle.fill"
         static let fabEdgeSize: CGFloat = 60
         static let fabBottomPaddings: CGFloat = 60

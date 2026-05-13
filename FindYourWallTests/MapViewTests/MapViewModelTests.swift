@@ -211,6 +211,32 @@ struct MapViewModelTests {
         // Then
         #expect(sut.spots.isEmpty)
     }
+    // MARK: - visibleSpots
+
+    @Test
+    func visibleSpotsExcludesHiddenSpots() {
+        let hiddenSpotsStore = HiddenSpotsStore(userDefaults: UserDefaults(suiteName: UUID().uuidString)!)
+        let sut = MapViewModel(spotService: self.mockService, hiddenSpotsStore: hiddenSpotsStore)
+        let spot1 = WallBallSpot(name: "Visible", latitude: 1, longitude: 1)
+        let spot2 = WallBallSpot(name: "Hidden", latitude: 2, longitude: 2)
+        sut.spots = [spot1, spot2]
+
+        hiddenSpotsStore.hide(HiddenSpot(id: spot2.id.uuidString, name: spot2.name, address: nil))
+
+        #expect(sut.visibleSpots.count == 1)
+        #expect(sut.visibleSpots.first?.name == "Visible")
+    }
+
+    @Test
+    func visibleSpotsReturnsAllWhenNoneHidden() {
+        let hiddenSpotsStore = HiddenSpotsStore(userDefaults: UserDefaults(suiteName: UUID().uuidString)!)
+        let sut = MapViewModel(spotService: self.mockService, hiddenSpotsStore: hiddenSpotsStore)
+        let spot1 = WallBallSpot(name: "Spot 1", latitude: 1, longitude: 1)
+        let spot2 = WallBallSpot(name: "Spot 2", latitude: 2, longitude: 2)
+        sut.spots = [spot1, spot2]
+
+        #expect(sut.visibleSpots.count == 2)
+    }
 }
 
 private enum TestError: Error {

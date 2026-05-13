@@ -12,20 +12,24 @@ import MapKit
 class WallBallSpotSheetViewModel {
     var spot: WallBallSpot
     let spotService: SpotService
+    let hiddenSpotsStore: HiddenSpotsStore
 
     var showSaveForm = false
     var showImagePreview = false
     var errorMessage: String?
     var didDelete = false
+    var didHide = false
 
     private let notificationCenter: NotificationCenter
     private var cancellables = Set<AnyCancellable>()
 
     init(spot: WallBallSpot,
          spotService: SpotService,
+         hiddenSpotsStore: HiddenSpotsStore = .init(),
          notificationCenter: NotificationCenter = .default) {
         self.spot = spot
         self.spotService = spotService
+        self.hiddenSpotsStore = hiddenSpotsStore
         self.notificationCenter = notificationCenter
 
         self.notificationCenter.publisher(for: .wallBallSpotDidSave)
@@ -47,6 +51,14 @@ class WallBallSpotSheetViewModel {
         case .failure(let error):
             self.errorMessage = error.localizedDescription
         }
+    }
+
+    func hideSpot() {
+        let hiddenSpot = HiddenSpot(id: self.spot.id.uuidString,
+                                     name: self.spot.name,
+                                     address: self.spot.address)
+        self.hiddenSpotsStore.hide(hiddenSpot)
+        self.didHide = true
     }
 
     func openInMaps() {
