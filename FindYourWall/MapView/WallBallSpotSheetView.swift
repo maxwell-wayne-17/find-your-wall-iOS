@@ -28,9 +28,7 @@ struct WallBallSpotSheetView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 if !self.viewModel.spot.isOwnedByCurrentUser {
-                    
                     Spacer()
-                    
                     Button {
                         self.viewModel.hideSpot()
                     } label: {
