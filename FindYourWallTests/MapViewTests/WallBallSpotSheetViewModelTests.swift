@@ -101,6 +101,43 @@ struct WallBallSpotSheetViewModelTests {
 
         #expect(sut.spot.name == "Test Spot")
     }
+    // MARK: - hideSpot
+
+    @Test
+    func hideSpotAddsToStoreAndSetsDidHide() {
+        let hiddenSpotsStore = HiddenSpotsStore(userDefaults: UserDefaults(suiteName: UUID().uuidString)!)
+        let spot = self.makeSpot()
+        let sut = WallBallSpotSheetViewModel(spot: spot,
+                                              spotService: MockSpotService(),
+                                              hiddenSpotsStore: hiddenSpotsStore)
+
+        sut.hideSpot()
+
+        #expect(sut.didHide == true)
+        #expect(hiddenSpotsStore.isHidden(spot) == true)
+        #expect(hiddenSpotsStore.allHiddenSpots.first?.name == spot.name)
+    }
+
+    @Test
+    func hideSpotStoresAddress() {
+        let hiddenSpotsStore = HiddenSpotsStore(userDefaults: UserDefaults(suiteName: UUID().uuidString)!)
+        let spot = WallBallSpot(name: "Test", latitude: 1, longitude: 1, address: "123 Main St")
+        let sut = WallBallSpotSheetViewModel(spot: spot,
+                                              spotService: MockSpotService(),
+                                              hiddenSpotsStore: hiddenSpotsStore)
+
+        sut.hideSpot()
+
+        #expect(hiddenSpotsStore.allHiddenSpots.first?.address == "123 Main St")
+    }
+
+    @Test
+    func initSetsDidHideToFalse() {
+        let spot = self.makeSpot()
+        let sut = WallBallSpotSheetViewModel(spot: spot, spotService: MockSpotService())
+
+        #expect(sut.didHide == false)
+    }
 }
 
 private enum TestError: Error {

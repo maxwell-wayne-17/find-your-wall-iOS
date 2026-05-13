@@ -12,18 +12,31 @@ struct WallBallSpotSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: WallBallSpotSheetViewModel
 
-    init(spot: WallBallSpot, spotService: SpotService) {
-        self._viewModel = State(wrappedValue: WallBallSpotSheetViewModel(spot: spot, spotService: spotService))
+    init(spot: WallBallSpot, spotService: SpotService, hiddenSpotsStore: HiddenSpotsStore = .init()) {
+        self._viewModel = State(wrappedValue: WallBallSpotSheetViewModel(spot: spot,
+                                                                          spotService: spotService,
+                                                                          hiddenSpotsStore: hiddenSpotsStore))
     }
 
     var body: some View {
         VStack(spacing: Constants.vstackSpacing) {
 
-            Text(viewModel.spot.name)
-                .font(.title3)
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding([.top])
+            HStack() {
+                Text(viewModel.spot.name)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                if !self.viewModel.spot.isOwnedByCurrentUser {
+                    Spacer()
+                    Button {
+                        self.viewModel.hideSpot()
+                    } label: {
+                        Label("Hide", systemImage: "eye.slash")
+                    }
+                }
+            }
+            .padding([.top])
 
             Text(viewModel.spot.address ?? "\(viewModel.spot.cLCoordinate)")
                 .font(.body)
@@ -103,6 +116,9 @@ struct WallBallSpotSheetView: View {
         }
         .onChange(of: self.viewModel.didDelete) {
             if self.viewModel.didDelete { self.dismiss() }
+        }
+        .onChange(of: self.viewModel.didHide) {
+            if self.viewModel.didHide { self.dismiss() }
         }
         .alert("Error", isPresented: Binding(
             get: { self.viewModel.errorMessage != nil },

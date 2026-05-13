@@ -11,10 +11,11 @@ import SwiftUI
 struct FindYourWallApp: App {
 
     private let spotService: SpotService = CloudKitSpotService()
+    private let hiddenSpotsStore = HiddenSpotsStore()
 
     var body: some Scene {
         WindowGroup {
-            MapView(spotService: self.spotService)
+            MapView(spotService: self.spotService, hiddenSpotsStore: self.hiddenSpotsStore)
         }
     }
 }
