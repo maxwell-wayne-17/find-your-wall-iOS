@@ -39,7 +39,7 @@ struct HiddenSpotsView: View {
                                 Spacer()
 
                                 Button(Constants.unhideButtonTitle) {
-                                    self.viewModel.unhide(id: spot.id)
+                                    self.viewModel.unhide(spot)
                                 }
                                 .buttonStyle(.bordered)
                             }

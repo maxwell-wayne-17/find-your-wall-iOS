@@ -49,7 +49,7 @@ struct HiddenSpotsStoreTests {
         let spot = self.makeHiddenSpot()
 
         sut.hide(spot)
-        sut.unhide(id: spot.id)
+        sut.unhide(spot)
 
         #expect(sut.allHiddenSpots.isEmpty)
     }
@@ -60,7 +60,7 @@ struct HiddenSpotsStoreTests {
         let spot = self.makeHiddenSpot()
 
         sut.hide(spot)
-        sut.unhide(id: "nonexistent-id")
+        sut.unhide(self.makeHiddenSpot(id: "nonexistent-id"))
 
         #expect(sut.allHiddenSpots.count == 1)
     }
