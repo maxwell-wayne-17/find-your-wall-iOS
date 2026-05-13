@@ -11,14 +11,14 @@ class HiddenSpotsViewModel {
     let hiddenSpotsStore: HiddenSpotsStore
 
     var allHiddenSpots: [HiddenSpot] {
-        self.hiddenSpotsStore.allHiddenSpots
+        self.hiddenSpotsStore.allHiddenSpots.sorted()
     }
 
     init(hiddenSpotsStore: HiddenSpotsStore) {
         self.hiddenSpotsStore = hiddenSpotsStore
     }
 
-    func unhide(id: String) {
-        self.hiddenSpotsStore.unhide(id: id)
+    func unhide(_ spot: HiddenSpot) {
+        self.hiddenSpotsStore.unhide(spot)
     }
 }
