@@ -126,11 +126,13 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
 
     @MainActor
     func fetchSpots() async {
+        var updatedSpots: [WallBallSpot] = []
         let result = await self.spotService.fetchAllSpots { spots in
-            self.spots.append(contentsOf: spots)
+            updatedSpots.append(contentsOf: spots)
         }
         switch result {
         case .success:
+            self.spots = updatedSpots
             return
         case .failure(let error):
             self.errorMessage = error.localizedDescription

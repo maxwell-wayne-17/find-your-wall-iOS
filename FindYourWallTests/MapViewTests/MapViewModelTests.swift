@@ -121,6 +121,30 @@ struct MapViewModelTests {
         #expect(sut.spots[1].name == "Spot 2")
         #expect(sut.errorMessage == nil)
     }
+    
+    @MainActor
+    @Test
+    func fetchSpotsReplacesSpots() async {
+        // Given
+        let newSpot1 = WallBallSpot(name: "New Spot 1", latitude: 1, longitude: 1)
+        let newSpot2 = WallBallSpot(name: "New Spot 2", latitude: 2, longitude: 2)
+        var mock = MockSpotService()
+        mock.fetchAllSpotsBatches = [[newSpot1], [newSpot2]]
+        
+        let startSpot1 = WallBallSpot(name: "Start Spot 1", latitude: 1, longitude: 1)
+        let startSpot2 = WallBallSpot(name: "Start Spot 2", latitude: 2, longitude: 2)
+        let sut = MapViewModel(spotService: mock)
+        sut.spots = [startSpot1, startSpot2]
+        
+        // When
+        await sut.fetchSpots()
+        
+        // Then
+        #expect(sut.spots.count == 2)
+        #expect(sut.spots[0].name == "New Spot 1")
+        #expect(sut.spots[1].name == "New Spot 2")
+        #expect(sut.errorMessage == nil)
+    }
 
     @MainActor
     @Test
