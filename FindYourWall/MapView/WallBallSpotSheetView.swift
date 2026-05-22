@@ -85,6 +85,7 @@ struct WallBallSpotSheetView: View {
                             Text("Delete")
                         }
                         .buttonStyle(.primaryAction(.red))
+                        .disabled(self.viewModel.isDeleting)
 
                         Button {
                             self.viewModel.showSaveForm = true
@@ -105,6 +106,17 @@ struct WallBallSpotSheetView: View {
         }
         .padding()
         .padding([.top], Constants.vstackSpacing)
+        .overlay {
+            if self.viewModel.isDeleting {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .tint(.white)
+                        .scaleEffect(1.5)
+                }
+            }
+        }
         .presentationDetents([self.getDetents()])
         .sheet(isPresented: self.$viewModel.showSaveForm) {
             SpotSaveFormView(viewModel: .init(spot: self.viewModel.spot, spotService: self.viewModel.spotService))

@@ -19,6 +19,7 @@ class WallBallSpotSheetViewModel {
     var errorMessage: String?
     var didDelete = false
     var didHide = false
+    var isDeleting = false
 
     private let notificationCenter: NotificationCenter
     private var cancellables = Set<AnyCancellable>()
@@ -45,10 +46,12 @@ class WallBallSpotSheetViewModel {
     @MainActor
     func deleteSpot() async {
         guard let recordName = self.spot.recordName else { return }
+        self.isDeleting = true
         switch await self.spotService.deleteSpot(recordName: recordName) {
         case .success:
             self.didDelete = true
         case .failure(let error):
+            self.isDeleting = false
             self.errorMessage = error.localizedDescription
         }
     }
