@@ -5,6 +5,7 @@
 
 import Foundation
 
+nonisolated
 struct HiddenSpot: Codable, Identifiable, Equatable, Hashable, Comparable {
     
     let id: String

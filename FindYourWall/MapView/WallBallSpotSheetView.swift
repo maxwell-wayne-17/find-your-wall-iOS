@@ -136,13 +136,15 @@ struct WallBallSpotSheetView: View {
         if hasNote && hasImage { return .large }
         if hasNote && !hasImage { return Constants.detentsWithOnlyNote }
         if !hasNote && hasImage { return Constants.detentsWithOnlyImage }
-        return Constants.detentsWithoutNoteOrImage
+        if self.viewModel.spot.isOwnedByCurrentUser { return Constants.detentsOwnedWithoutNoteOrImage }
+        return Constants.detentsNotOwnedWithoutNoteOrImage
     }
     
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
-        static let detentsWithoutNoteOrImage: PresentationDetent = .height(260)
+        static let detentsNotOwnedWithoutNoteOrImage: PresentationDetent = .height(230)
+        static let detentsOwnedWithoutNoteOrImage: PresentationDetent = .height(290)
         static let detentsWithOnlyNote: PresentationDetent = .height(500)
         static let detentsWithOnlyImage: PresentationDetent = .height(600)
     }
