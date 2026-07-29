@@ -118,7 +118,8 @@ struct WallBallSpotSheetView: View {
             }
         }
         .presentationDetents([self.getDetents()])
-        .sheet(isPresented: self.$viewModel.showSaveForm) {
+        .sheet(isPresented: self.$viewModel.showSaveForm,
+               onDismiss: { self.dismiss() }) {
             SpotSaveFormView(viewModel: .init(spot: self.viewModel.spot, spotService: self.viewModel.spotService))
         }
         .fullScreenCover(isPresented: $viewModel.showImagePreview) {

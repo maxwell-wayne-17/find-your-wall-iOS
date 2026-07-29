@@ -88,15 +88,22 @@ class MapViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     func setUserPlacedLocation(at coordinate: CLLocationCoordinate2D) {
+        self.userIsPlacingPin = false
         self.userPlacedLocation = MKMapItem(location: .init(latitude: coordinate.latitude,
                                                             longitude: coordinate.longitude),
                                             address: nil)
+        // Immediately show the marker sheet after user places pin
+        self.showMarkerSheet = true
     }
-    
+
     func getSelectedLocation() -> MKMapItem? {
-        if self.selectedTag == Constants.userPlacedLocationTag { return self.userPlacedLocation }
-        
-        guard let tag = self.selectedTag, tag >= 0, tag < self.mapSearchResults.count else { return nil }
+        // Falling back to user placed location if there's no selected tag
+        // so we can immediately show a marker sheet of the user placed location
+        // right after they set the pin without trigging another re-render from
+        // changing the selected tag. If no user placed location, nil is returned anyways.
+        guard let tag = self.selectedTag else { return self.userPlacedLocation }
+        if tag == Constants.userPlacedLocationTag { return self.userPlacedLocation }
+        guard tag >= 0, tag < self.mapSearchResults.count else { return nil }
         return self.mapSearchResults[tag]
     }
     

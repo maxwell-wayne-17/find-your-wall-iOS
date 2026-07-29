@@ -48,6 +48,18 @@ struct MapViewModelTests {
         sut.selectedTag = MapViewModel.Constants.userPlacedLocationTag
         #expect(sut.getSelectedLocation() === sut.userPlacedLocation)
     }
+    
+    @Test
+    func nilTagUsesUserPlacedLocationAsSelectedLocation() {
+        // Given
+        let sut = MapViewModel(spotService: self.mockService)
+        sut.mapSearchResults = [.init(), .init(), .init()]
+        sut.userPlacedLocation = .init()
+        sut.selectedTag = nil
+
+        // Retrieve user placed location
+        #expect(sut.getSelectedLocation() === sut.userPlacedLocation)
+    }
 
     @Test("Test the cases where the view model does not return a location.", arguments: [Int.min, Int.max, nil])
     func getInvalidSelectedLocation(invalidTag: Int?) {

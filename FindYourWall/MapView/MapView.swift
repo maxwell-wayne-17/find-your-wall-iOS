@@ -67,7 +67,9 @@ struct MapView: View {
                     // and cannot open a marker sheet.
                     if self.viewModel.userIsPlacingPin,
                        let coordinate = proxy.convert(position, from: .local) {
-                        self.viewModel.setUserPlacedLocation(at: coordinate)
+                        withAnimation {
+                            self.viewModel.setUserPlacedLocation(at: coordinate)
+                        }
                     }
                 }
                 .sheet(item: self.$viewModel.selectedLocalSpot,
