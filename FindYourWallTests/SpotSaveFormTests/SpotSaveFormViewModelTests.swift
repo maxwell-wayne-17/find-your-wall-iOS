@@ -18,23 +18,14 @@ struct SpotSaveFormViewModelTests {
                               spotService: MockSpotService())
     }
     
-    private func getMapItemWithAddress() async throws -> MKMapItem? {
-        // Apple Park Coordinates
-        let request = MKReverseGeocodingRequest(location: .init(latitude: 37.3349,
-                                                                longitude: -122.0090))
-        // Use a reverse geocoding request to get fully populated map items
-        return try await request?.mapItems.first
-    }
-
-    @MainActor
     @Test
-    func testPrepopulatedAddress() async throws {
-        let mapItem = try #require(await self.getMapItemWithAddress())
+    func testPrepopulatedAddress() throws {
+        let mapItem = try MKMapItem.fixture()
 
         let sut = SpotSaveFormViewModel(mapItem: mapItem, spotService: MockSpotService())
 
-        #expect(sut.address == mapItem.address?.shortAddress)
-        #expect(sut.name == mapItem.name)
+        #expect(sut.address == "One Apple Park Way, Cupertino")
+        #expect(sut.name == "Apple Park")
         #expect(sut.note.isEmpty)
     }
 
@@ -48,10 +39,9 @@ struct SpotSaveFormViewModelTests {
         #expect(sut.isFormValid == true)
     }
     
-    @MainActor
     @Test
-    func testAddressFromMapItemIsUsedWhenAddressPropertiesArentSet() async throws {
-        let mapItem = try #require(await self.getMapItemWithAddress())
+    func testAddressFromMapItemIsUsedWhenAddressPropertiesArentSet() throws {
+        let mapItem = try MKMapItem.fixture()
 
         let sut = SpotSaveFormViewModel(mapItem: mapItem, spotService: MockSpotService())
         #expect(sut.address == mapItem.address?.shortAddress)
