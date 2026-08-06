@@ -17,10 +17,20 @@ struct PrimaryButtonStyle: ButtonStyle {
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(isEnabled ? self.backgroundColor : Color.gray)
+            .background(self.isEnabled ? self.backgroundColor : Color.gray)
             .foregroundColor(.white)
-            .cornerRadius(12)
+            .clipShape(.rect(cornerRadius: Constants.cornerRadius))
             .padding()
+            // Resolves the label and its background as one geometry unit. Without this they
+            // resolve separately while a sheet animates between detents, and the background
+            // visibly detaches from the text mid-animation.
+            .geometryGroup()
+    }
+
+    // MARK: - Constants
+
+    private struct Constants {
+        static let cornerRadius: CGFloat = 12
     }
 }
 

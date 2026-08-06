@@ -10,6 +10,7 @@ import MapKit
 
 struct WallBallSpotSheetView: View {
     @Environment(\.dismiss) private var dismiss
+    @ScaledMetric(relativeTo: .body) private var noteMinHeight: CGFloat = Constants.noteBaseMinHeight
     @State private var viewModel: WallBallSpotSheetViewModel
 
     init(spot: WallBallSpot, spotService: SpotService, hiddenSpotsStore: HiddenSpotsStore = .init()) {
@@ -48,13 +49,18 @@ struct WallBallSpotSheetView: View {
                 ScrollView {
                     Text(note)
                         .font(.body)
-                        .fixedSize(horizontal: false, vertical: false)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
-                .padding(10)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .scrollBounceBehavior(.basedOnSize)
+                .padding(Constants.notePadding)
+                .frame(maxWidth: .infinity)
+                // Note: The note claims its space before the image and the Spacers,
+                // otherwise the image's bounded height wins and the note gets squeezed to a sliver.
+                .frame(minHeight: self.noteMinHeight, maxHeight: Constants.noteMaxHeight)
+                .layoutPriority(Constants.notePriority)
                 .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
+                .clipShape(.rect(cornerRadius: Constants.cornerRadius))
             }
 
             Spacer()
@@ -64,9 +70,9 @@ struct WallBallSpotSheetView: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: 300)
+                        .frame(maxWidth: .infinity, maxHeight: Constants.imageMaxHeight)
                         .clipped()
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: Constants.cornerRadius))
                 }
                 .buttonStyle(.plain)
                 .contentShape(Rectangle()) // This is required, otherwise the tappable area includes the portion of the image that got clipped.
@@ -117,7 +123,7 @@ struct WallBallSpotSheetView: View {
                 }
             }
         }
-        .presentationDetents([self.getDetents()])
+        .presentationDetents([self.getDetents(), .large])
         .sheet(isPresented: self.$viewModel.showSaveForm,
                onDismiss: { self.dismiss() }) {
             SpotSaveFormView(viewModel: .init(spot: self.viewModel.spot, spotService: self.viewModel.spotService))
@@ -156,6 +162,12 @@ struct WallBallSpotSheetView: View {
     private struct Constants {
         static let vstackSpacing: CGFloat = 16
         static let buttonVstackSpacing: CGFloat = -20
+        static let cornerRadius: CGFloat = 8
+        static let notePadding: CGFloat = 10
+        static let noteBaseMinHeight: CGFloat = 86
+        static let noteMaxHeight: CGFloat = 200
+        static let notePriority: Double = 1
+        static let imageMaxHeight: CGFloat = 300
         static let detentsNotOwnedWithoutNoteOrImage: PresentationDetent = .height(230)
         static let detentsOwnedWithoutNoteOrImage: PresentationDetent = .height(290)
         static let detentsWithOnlyNote: PresentationDetent = .height(500)
